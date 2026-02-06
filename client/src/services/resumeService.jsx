@@ -1,16 +1,16 @@
 import { apiFetch } from "../api/api";
 
-export const getResumes = () => apiFetch("/resume");
+export const getResumes = () => apiFetch("/resumes");
 
 export const uploadResume = (file) => {
   const formData = new FormData();
   formData.append("resume", file);
 
-  return apiFetch("/resume", {
+  return apiFetch("/resumes", {
     method: "POST",
     body: formData,
   });
 };
 
 export const deleteResume = (id) =>
-  apiFetch(`/resume/${id}`, { method: "DELETE" });
+  apiFetch(`/resumes/${id}`, { method: "DELETE" });

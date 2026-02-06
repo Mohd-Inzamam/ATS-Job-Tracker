@@ -7,8 +7,10 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./styles/global.css";
-import ResumeList from "./pages/ResumeList";
 import ResumeCard from "./components/ResumeCard";
+import Resumes from "./pages/Resume";
+import Onboarding from "./pages/Onboarding";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -33,7 +35,7 @@ export default function App() {
         path="/resumes"
         element={
           <ProtectedRoute>
-            <ResumeList />
+            <Resumes />
           </ProtectedRoute>
         }
       />
@@ -43,6 +45,24 @@ export default function App() {
         element={
           <ProtectedRoute>
             <ResumeCard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <Onboarding />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />

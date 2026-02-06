@@ -7,30 +7,36 @@ import fs from "fs";
 // @route   POST /api/resumes
 // @access  Private
 export const uploadResume = async (req, res) => {
-    const { label } = req.body;
 
-    if (!req.file || !label) {
-        return res.status(400).json({ message: "Resume file and label required" });
+    try {
+        const { label } = req.body;
+
+        if (!req.file || !label) {
+            return res.status(400).json({ message: "Resume file and label required" });
+        }
+
+        const fileType = req.file.originalname.split(".").pop().toLowerCase();
+
+        const parsedText = await parseResume(req.file.path, fileType);
+        console.log("FILE 👉", req.file);
+        console.log("LABEL 👉", req.body.label);
+        // console.log("USER 👉", req.user);
+
+
+        const resume = await Resume.create({
+            user: req.user._id,
+            label,
+            fileName: req.file.filename,
+            filePath: req.file.path,
+            fileType,
+            parsedText
+        });
+
+        res.status(201).json(resume);
+    } catch (error) {
+        console.error("Error uploading resume:", error);
+        res.status(500).json({ message: "Failed to upload resume" });
     }
-
-    const fileType = req.file.originalname.split(".").pop().toLowerCase();
-
-    const parsedText = await parseResume(req.file.path, fileType);
-    console.log("FILE 👉", req.file);
-    console.log("LABEL 👉", req.body.label);
-    // console.log("USER 👉", req.user);
-
-
-    const resume = await Resume.create({
-        user: req.user._id,
-        label,
-        fileName: req.file.filename,
-        filePath: req.file.path,
-        fileType,
-        parsedText
-    });
-
-    res.status(201).json(resume);
 };
 
 
@@ -39,8 +45,13 @@ export const uploadResume = async (req, res) => {
 // @route   GET /api/resumes
 // @access  Private
 export const getResumes = async (req, res) => {
-    const resumes = await Resume.find({ user: req.user._id });
-    res.json(resumes);
+    try {
+        const resumes = await Resume.find({ user: req.user._id });
+        res.json(resumes);
+    } catch (error) {
+        console.error("Error fetching resumes:", error);
+        res.status(500).json({ message: "Failed to fetch resumes" });
+    }
 };
 
 

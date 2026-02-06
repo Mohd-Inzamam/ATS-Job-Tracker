@@ -64,3 +64,77 @@ input {
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
+
+.profile-page {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.profile-header {
+    margin-bottom: 32px;
+}
+
+.profile-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.profile-header p {
+    margin-top: 6px;
+    color: #666;
+    font-size: 14px;
+}
+
+.profile-section {
+    margin-bottom: 32px;
+}
+
+.profile-section h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: #222;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.form-group input:disabled {
+    background: #f4f4f4;
+    cursor: not-allowed;
+}
+
+.form-group small {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #777;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
