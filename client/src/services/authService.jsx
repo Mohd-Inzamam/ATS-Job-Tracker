@@ -13,3 +13,5 @@ export const registerService = (data) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+
+export const getUserProfileService = () => apiFetch("/auth/getProfile");

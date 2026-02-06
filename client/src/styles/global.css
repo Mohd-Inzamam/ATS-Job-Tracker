@@ -52,3 +52,15 @@ input {
     margin-bottom: 1rem;
     padding: 0.5rem;
 }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.upload-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}

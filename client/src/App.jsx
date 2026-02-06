@@ -7,6 +7,8 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./styles/global.css";
+import ResumeList from "./pages/ResumeList";
+import ResumeCard from "./components/ResumeCard";
 
 export default function App() {
   return (
@@ -16,11 +18,31 @@ export default function App() {
       <Route path="/ats/result" element={<ATSResult />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+
+      {/* Protected routes */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resumes"
+        element={
+          <ProtectedRoute>
+            <ResumeList />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resumes/:id"
+        element={
+          <ProtectedRoute>
+            <ResumeCard />
           </ProtectedRoute>
         }
       />

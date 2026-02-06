@@ -44,9 +44,11 @@ export const loginUser = async (req, res) => {
         if (user && (await user.matchPassword(password))) {
             console.log("User logged in:", user);
             res.status(200).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
+                user: {  // ✅ Wrap user data
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email
+                },
                 token: generateToken(user._id)
             });
         } else {
