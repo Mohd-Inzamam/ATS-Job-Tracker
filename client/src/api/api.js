@@ -1,13 +1,12 @@
-const API_BASE_URL = 'http://localhost:5000/';
+const API_BASE_URL = 'http://localhost:5000/api';
 
-export const API_BASE = "/api";
 
 
 export async function apiFetch(endpoint, options = {}) {
     const token = localStorage.getItem("token");
 
 
-    const res = await fetch(`${API_BASE}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
         headers: {
             ...(options.headers || {}),
