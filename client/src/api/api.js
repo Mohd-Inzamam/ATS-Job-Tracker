@@ -1,5 +1,25 @@
 const API_BASE_URL = 'http://localhost:5000/';
 
+export const API_BASE = "/api";
+
+
+export async function apiFetch(endpoint, options = {}) {
+    const token = localStorage.getItem("token");
+
+
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers: {
+            ...(options.headers || {}),
+            Authorization: token ? `Bearer ${token}` : undefined
+        }
+    });
+
+
+    if (!res.ok) throw new Error("API Error");
+    return res.json();
+}
+
 export const checkATS = async (file) => {
     const formData = new FormData();
     formData.append("resume", file);
