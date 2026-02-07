@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ScoreBadge from "../components/ScoreBadge";
 import FeedbackCard from "../components/FeedbackCard";
 import PrimaryButton from "../components/PrimaryButton";
+import PublicNavbar from "../components/PublicNavbar";
 
 export default function ATSResult() {
   const { state } = useLocation();
@@ -15,6 +16,7 @@ export default function ATSResult() {
 
   return (
     <div className="container">
+      <PublicNavbar />
       <ScoreBadge score={state.atsScore} />
 
       {state.sections?.map((sec, idx) => (

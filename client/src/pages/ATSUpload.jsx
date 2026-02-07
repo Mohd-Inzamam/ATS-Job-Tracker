@@ -4,6 +4,7 @@ import FileUploadBox from "../components/FileUploadBox";
 import PrimaryButton from "../components/PrimaryButton";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import { checkATS } from "../api/api";
+import PublicNavbar from "../components/PublicNavbar";
 
 export default function ATSUpload() {
   const [file, setFile] = useState(null);
@@ -24,6 +25,7 @@ export default function ATSUpload() {
 
   return (
     <div className="container">
+      <PublicNavbar />
       <h2>ATS Resume Checker</h2>
       <FileUploadBox onFileSelect={setFile} />
       {loading ? <LoadingSkeleton /> : null}

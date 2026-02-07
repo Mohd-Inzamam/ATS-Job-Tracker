@@ -1,3 +1,4 @@
+import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 
 export default function DashboardLayout({ children }) {
@@ -5,6 +6,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="dashboard">
+      <Sidebar />
       <aside className="sidebar">
         <h3>ATS</h3>
         <button onClick={logout}>Logout</button>

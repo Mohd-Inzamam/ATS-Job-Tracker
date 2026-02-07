@@ -11,6 +11,8 @@ import ResumeCard from "./components/ResumeCard";
 import Resumes from "./pages/Resume";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
+import PublicNavbar from "./components/PublicNavbar";
+import Sidebar from "./components/Sidebar";
 
 export default function App() {
   return (
@@ -20,6 +22,7 @@ export default function App() {
       <Route path="/ats/result" element={<ATSResult />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/publicnav" element={<PublicNavbar />} />
 
       {/* Protected routes */}
       <Route
@@ -63,6 +66,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/sidebar"
+        element={
+          <ProtectedRoute>
+            <Sidebar />
           </ProtectedRoute>
         }
       />
