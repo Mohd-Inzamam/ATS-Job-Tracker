@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../layout/DashboardLayout";
 import MetricCard from "../components/MetricCard";
+import ActionCard from "../components/ActionCard";
 import { getDashboardMetrics } from "../services/dashboardService";
 
 export default function Dashboard() {
@@ -10,8 +11,14 @@ export default function Dashboard() {
     getDashboardMetrics().then(setMetrics);
   }, []);
 
+  const showUploadResume = metrics && metrics.resumeCount === 0;
+
+  const showAddApplication =
+    metrics && metrics.resumeCount > 0 && metrics.applicationCount === 0;
+
   return (
     <DashboardLayout>
+      {/* Metrics */}
       <div className="grid">
         <MetricCard
           title="Resumes"
@@ -48,6 +55,29 @@ export default function Dashboard() {
           loading={!metrics}
         />
       </div>
+
+      {/* Suggested Action */}
+      {(showUploadResume || showAddApplication) && (
+        <div style={{ marginTop: "2rem" }}>
+          {showUploadResume && (
+            <ActionCard
+              title="Upload your first resume"
+              description="Add a resume to unlock ATS analysis and job tracking."
+              actionLabel="Upload Resume"
+              to="/resumes"
+            />
+          )}
+
+          {showAddApplication && (
+            <ActionCard
+              title="Start tracking applications"
+              description="Track jobs you've applied to and monitor progress."
+              actionLabel="Add Application"
+              to="/applications"
+            />
+          )}
+        </div>
+      )}
     </DashboardLayout>
   );
 }

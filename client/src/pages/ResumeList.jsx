@@ -6,16 +6,23 @@ import { getResumes, uploadResume } from "../services/resumeService";
 export default function ResumeList() {
   const [resumes, setResumes] = useState([]);
   const [file, setFile] = useState(null);
+  const [label, setLabel] = useState(
+    "resume-" + new Date().toISOString().slice(0, 10),
+  );
 
   useEffect(() => {
     getResumes().then(setResumes);
   }, []);
 
   const handleUpload = async () => {
-    if (!file) return;
-    const newResume = await uploadResume(file);
+    console.log("Uploading file:", file);
+    console.log("With label:", label);
+    if (!file || !label) return alert("File and label required");
+
+    const newResume = await uploadResume(file, label);
     setResumes((prev) => [newResume, ...prev]);
     setFile(null);
+    setLabel("");
   };
 
   return (

@@ -8,11 +8,12 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./styles/global.css";
 import ResumeCard from "./components/ResumeCard";
-import Resumes from "./pages/Resume";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import PublicNavbar from "./components/PublicNavbar";
 import Sidebar from "./components/Sidebar";
+import Applications from "./pages/Applications";
+import ResumeList from "./pages/ResumeList";
 
 export default function App() {
   return (
@@ -38,7 +39,7 @@ export default function App() {
         path="/resumes"
         element={
           <ProtectedRoute>
-            <Resumes />
+            <ResumeList />
           </ProtectedRoute>
         }
       />
@@ -75,6 +76,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <Sidebar />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/applications"
+        element={
+          <ProtectedRoute>
+            <Applications />
           </ProtectedRoute>
         }
       />
