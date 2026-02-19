@@ -18,8 +18,13 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Track your resume performance and applications</p>
+      </div>
+
       {/* Metrics */}
-      <div className="grid">
+      <div className="metrics-grid">
         <MetricCard
           title="Resumes"
           value={metrics ? metrics.resumeCount : "—"}
@@ -58,7 +63,7 @@ export default function Dashboard() {
 
       {/* Suggested Action */}
       {(showUploadResume || showAddApplication) && (
-        <div style={{ marginTop: "2rem" }}>
+        <div className="action-section">
           {showUploadResume && (
             <ActionCard
               title="Upload your first resume"

@@ -7,10 +7,18 @@ export default function ResumeCard({ resume }) {
   };
 
   return (
-    <div className="card">
-      <h4>{resume.label || resume.fileName}</h4>
-      <p>ATS Score: {resume.atsScore ?? "—"}</p>
-      <button onClick={handleDelete}>Delete</button>
+    <div className="card resume-card">
+      <div className="resume-info">
+        <h4>{resume.label || resume.fileName}</h4>
+        <p className="resume-score">
+          ATS Score:
+          <span className="score">{resume.atsScore ?? "—"}</span>
+        </p>
+      </div>
+
+      <button className="delete-btn" onClick={handleDelete}>
+        Delete
+      </button>
     </div>
   );
 }

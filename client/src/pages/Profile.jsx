@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="container profile-page">
+    <DashboardLayout className="container profile-page">
       <div className="profile-card">
         <header className="profile-header">
           <h2>Your Profile</h2>
@@ -85,6 +86,6 @@ export default function Profile() {
           </button>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

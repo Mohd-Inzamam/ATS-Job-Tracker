@@ -22,7 +22,7 @@ export async function apiFetch(endpoint, options = {}) {
 export const checkATS = async (file) => {
     const formData = new FormData();
     formData.append("resume", file);
-    const response = await fetch(`${API_BASE_URL}api/ats/check`, {
+    const response = await fetch(`${API_BASE_URL}/ats/check`, {
         method: "POST",
         body: formData,
     });
@@ -34,7 +34,7 @@ export const uploadResume = async (file, label) => {
     formData.append("resume", file);
     formData.append("label", label);
 
-    const response = await fetch(`${API_BASE_URL}api/resumes/upload`, {
+    const response = await fetch(`${API_BASE_URL}/resumes/upload`, {
         method: "POST",
         body: formData,
         credentials: "include", // IMPORTANT (JWT cookie)

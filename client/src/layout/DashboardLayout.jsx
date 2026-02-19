@@ -7,11 +7,16 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="dashboard">
       <Sidebar />
-      <aside className="sidebar">
-        <h3>ATS</h3>
-        <button onClick={logout}>Logout</button>
-      </aside>
-      <main className="content">{children}</main>
+
+      <main className="content">
+        <div className="topbar">
+          <button className="logout-btn" onClick={logout}>
+            Logout
+          </button>
+        </div>
+
+        <div className="page-content">{children}</div>
+      </main>
     </div>
   );
 }

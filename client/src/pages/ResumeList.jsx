@@ -6,9 +6,7 @@ import { getResumes, uploadResume } from "../services/resumeService";
 export default function ResumeList() {
   const [resumes, setResumes] = useState([]);
   const [file, setFile] = useState(null);
-  const [label, setLabel] = useState(
-    "resume-" + new Date().toISOString().slice(0, 10),
-  );
+  const [label, setLabel] = useState("");
 
   useEffect(() => {
     getResumes().then(setResumes);
@@ -27,10 +25,24 @@ export default function ResumeList() {
 
   return (
     <DashboardLayout>
-      <h2>My Resumes</h2>
+      <div className="page-header">
+        <h2>My Resumes</h2>
+        <p>Upload and manage your resumes for ATS tracking</p>
+      </div>
 
       <div className="upload-row">
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        <input
+          type="file"
+          onChange={(e) => {
+            const selectedFile = e.target.files[0];
+            setFile(selectedFile);
+
+            if (selectedFile) {
+              const nameWithoutExt = selectedFile.name.split(".")[0];
+              setLabel(nameWithoutExt);
+            }
+          }}
+        />
         <button className="btn-primary" onClick={handleUpload}>
           Upload Resume
         </button>
