@@ -9,22 +9,22 @@ export default function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <NavLink to="/dashboard" className="nav-item">
+        <NavLink to="/dashboard" className="sidebar-nav-item">
           <span className="material-symbols-outlined">dashboard</span>
           <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/resumes" className="nav-item">
+        <NavLink to="/resumes" className="sidebar-nav-item">
           <span className="material-symbols-outlined">description</span>
           <span>Resumes</span>
         </NavLink>
 
-        <NavLink to="/applications" className="nav-item">
+        <NavLink to="/applications" className="sidebar-nav-item">
           <span className="material-symbols-outlined">work</span>
           <span>Applications</span>
         </NavLink>
 
-        <NavLink to="/profile" className="nav-item">
+        <NavLink to="/profile" className="sidebar-nav-item">
           <span className="material-symbols-outlined">person</span>
           <span>Profile</span>
         </NavLink>
