@@ -72,6 +72,7 @@ export default function ATSUpload() {
             <>
               {/* Result State */}
               {result?.atsScore >= 80 && <Confetti numberOfPieces={200} />}
+              <div className="drag-indicator" />
               <div className={`bottom-sheet ${result ? "open" : ""}`}>
                 <div className="result-container">
                   <ScoreBadge score={result.atsScore} />
