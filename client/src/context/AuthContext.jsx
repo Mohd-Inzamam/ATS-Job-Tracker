@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   // restore session
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       setLoading(false);
       return;
@@ -45,6 +46,7 @@ export function AuthProvider({ children }) {
     const data = await loginService(credentials);
     setUser(data.user);
     localStorage.setItem("token", data.token);
+    localStorage.setItem("refreshToken", data.refreshToken);
     return data.user;
   };
 
@@ -57,6 +59,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
   };
 
   return (

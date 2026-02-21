@@ -6,7 +6,8 @@ import {
     updateUserProfile,
     verifyEmail,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    refreshAccessToken
 } from "../controller/authController.js";
 import protect from "../middleware/authMiddleware.js";
 
@@ -19,5 +20,6 @@ router.put("/updateProfile", protect, updateUserProfile);
 router.get("/verify/:token", verifyEmail);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+router.post("/refresh", refreshAccessToken);
 
 export default router;

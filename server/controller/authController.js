@@ -18,6 +18,36 @@ const generateRefreshToken = (id) => {
     });
 };
 
+export const refreshAccessToken = async (req, res) => {
+    const refreshHeader = req.headers["x-refresh-token"];
+
+    if (!refreshHeader) {
+        return res.status(401).json({ message: "No refresh token provided" });
+    }
+
+    const refreshToken = refreshHeader.split(" ")[1];
+
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(401).json({ message: "User not found" });
+        }
+
+        const newAccessToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "30d" }
+        );
+
+        res.status(200).json({ token: newAccessToken });
+    } catch (error) {
+        res.status(401).json({ message: "Invalid refresh token" });
+    }
+};
+
 export const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -41,10 +71,13 @@ export const registerUser = async (req, res) => {
         console.log("User registered:", user);
 
         res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user._id)
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email
+            },
+            token: generateToken(user._id),
+            refreshToken: generateRefreshToken(user._id)
         });
     } catch (error) {
         console.error("Error registering user:", error);
