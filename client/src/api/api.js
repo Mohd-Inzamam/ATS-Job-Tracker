@@ -4,13 +4,14 @@ const API_BASE_URL = 'http://localhost:5000/api';
 
 export async function apiFetch(endpoint, options = {}) {
     const token = localStorage.getItem("token");
-
+    const refreshToken = localStorage.getItem("refreshToken");
 
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
         headers: {
             ...(options.headers || {}),
-            Authorization: token ? `Bearer ${token}` : undefined
+            Authorization: token ? `Bearer ${token}` : undefined,
+            "x-refresh-token": refreshToken ? `Bearer ${refreshToken}` : undefined
         }
     });
 

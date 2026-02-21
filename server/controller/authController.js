@@ -1,9 +1,20 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: "30d"
+    });
+};
+
+const generateVerificationToken = () => {
+    return crypto.randomBytes(32).toString("hex");
+};
+
+const generateRefreshToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: "7d"
     });
 };
 
@@ -21,6 +32,12 @@ export const registerUser = async (req, res) => {
         }
 
         const user = await User.create({ name, email, password });
+
+        const token = generateVerificationToken();
+
+        user.verificationToken = token;
+        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24h
+        await user.save();
         console.log("User registered:", user);
 
         res.status(201).json({
@@ -49,7 +66,8 @@ export const loginUser = async (req, res) => {
                     name: user.name,
                     email: user.email
                 },
-                token: generateToken(user._id)
+                token: generateToken(user._id),
+                refreshToken: generateRefreshToken(user._id)
             });
         } else {
             res.status(401).json({ message: "Invalid email or password" });
@@ -92,3 +110,65 @@ export const updateUserProfile = async (req, res) => {
     }
 };
 
+export const verifyEmail = async (req, res) => {
+    const { token } = req.params;
+
+    const user = await User.findOne({
+        verificationToken: token,
+        verificationTokenExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully" });
+};
+
+export const forgotPassword = async (req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await user.save();
+
+    res.status(200).json({
+        message: "Reset token generated",
+        resetToken // later send via email
+    });
+};
+
+export const resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    user.password = password; // pre-save hook hashes it
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+};
