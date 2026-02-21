@@ -627,6 +627,38 @@ input:disabled {
     transform: translateY(-2px);
 }
 
+/* Upload Section*/
+
+.upload-section {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 520px;
+    margin-bottom: 28px;
+}
+
+.label-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label-edit input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.label-edit input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
 /* ============================= */
 /* AUTH PAGES */
 /* ============================= */
