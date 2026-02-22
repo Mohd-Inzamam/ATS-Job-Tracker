@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { sendVerificationEmail } from "../utils/sendMail.js";
+
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -61,23 +63,29 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        const user = await User.create({ name, email, password });
+        const user = await User.create({
+            name,
+            email,
+            password,
+            isVerified: false
+        });
 
         const token = generateVerificationToken();
 
         user.verificationToken = token;
-        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24h
-        await user.save();
-        console.log("User registered:", user);
+        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
 
+        await user.save();
+
+        // send email
+        try {
+            await sendVerificationEmail(user.email, token);
+            console.log("Verification email sent to:", user.email);
+        } catch (emailError) {
+            console.error("Error sending verification email:", emailError);
+        }
         res.status(201).json({
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email
-            },
-            token: generateToken(user._id),
-            refreshToken: generateRefreshToken(user._id)
+            message: "Registration successful. Please verify your email."
         });
     } catch (error) {
         console.error("Error registering user:", error);
