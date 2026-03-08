@@ -13,13 +13,16 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
             unique: true,
-            lowercase: true
+            lowercase: true,
+            lowercase: true,
+            trim: true,
+            index: true
         },
 
         password: {
             type: String,
             required: true,
-            minlength: 6,
+            minlength: 8,
             select: false // 🔥 important security detail
         },
 
@@ -38,16 +41,27 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
-        verificationToken: String,
-        verificationTokenExpire: Date,
-
-        resetPasswordToken: String,
-        resetPasswordExpire: Date,
 
         targetRoles: {
             type: [String],
             default: []
-        }
+        },
+        refreshToken: {
+            type: String,
+            select: false
+        },
+
+        verificationToken: {
+            type: String,
+            select: false
+        },
+        verificationTokenExpire: Date,
+
+        resetPasswordToken: {
+            type: String,
+            select: false
+        },
+        resetPasswordExpire: Date,
     },
     { timestamps: true }
 );
