@@ -2,55 +2,68 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../layout/DashboardLayout";
 import ResumeCard from "../components/ResumeCard";
 import FileUploadBox from "../components/FileUploadBox";
-import { getResumes, uploadResume } from "../services/resumeService";
-import { checkATS } from "../api/api";
+import {
+  getResumes,
+  uploadResume,
+  deleteResume,
+} from "../services/resumeService";
+import { checkATS } from "../services/atsService";
 
 export default function ResumeList() {
   const [resumes, setResumes] = useState([]);
   const [file, setFile] = useState(null);
   const [label, setLabel] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    getResumes().then(setResumes);
+    getResumes()
+      .then(setResumes)
+      .catch(() => setError("Failed to load resumes"));
   }, []);
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
-
     if (selectedFile) {
-      const nameWithoutExt = selectedFile.name.split(".")[0];
-      setLabel(nameWithoutExt);
+      setLabel(selectedFile.name.split(".")[0]);
     }
   };
 
   const handleUpload = async () => {
     if (!file || !label) {
-      alert("File and label required");
+      setError("File and label are required");
       return;
     }
 
     try {
+      setError("");
       setUploading(true);
 
-      const analyzedResume = checkATS(file);
-      console.log("ATS Analysis Result:", analyzedResume);
+      // Run ATS check and upload in parallel
+      const [atsResult, newResume] = await Promise.all([
+        checkATS(file),
+        uploadResume(file, label),
+      ]);
 
-      const newResume = await uploadResume(file, label);
+      console.log("ATS Score:", atsResult.atsScore);
 
-      const resumeWithScore = {
-        ...newResume,
-        atsScore: analyzedResume.score,
-      };
-
-      setResumes((prev) => [resumeWithScore, ...prev]);
-
+      setResumes((prev) => [newResume, ...prev]);
       setFile(null);
       setLabel("");
+    } catch (err) {
+      setError(err.message || "Failed to upload resume");
+    } finally {
       setUploading(false);
-    } catch (error) {
-      console.error("Error uploading resume:", error);
-      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this resume?")) return;
+    try {
+      await deleteResume(id);
+      setResumes((prev) => prev.filter((r) => r._id !== id));
+    } catch {
+      setError("Failed to delete resume");
     }
   };
 
@@ -61,8 +74,22 @@ export default function ResumeList() {
         <p>Upload and manage your resumes for ATS tracking</p>
       </div>
 
+      {error && <div className="error-banner">{error}</div>}
+
       <div className="upload-section">
         <FileUploadBox onFileSelect={handleFileSelect} />
+
+        {file && (
+          <div className="form-group" style={{ marginTop: "1rem" }}>
+            <label>Resume Label</label>
+            <input
+              type="text"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="e.g. Backend Resume"
+            />
+          </div>
+        )}
 
         <button
           className="btn-primary"
@@ -72,11 +99,21 @@ export default function ResumeList() {
         </button>
       </div>
 
-      <div className="grid">
-        {resumes.map((resume) => (
-          <ResumeCard key={resume._id} resume={resume} />
-        ))}
-      </div>
+      {resumes.length === 0 ? (
+        <div className="card center" style={{ marginTop: "2rem" }}>
+          <p>No resumes uploaded yet.</p>
+        </div>
+      ) : (
+        <div className="grid">
+          {resumes.map((resume) => (
+            <ResumeCard
+              key={resume._id}
+              resume={resume}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </DashboardLayout>
   );
 }
@@ -84,26 +121,57 @@ export default function ResumeList() {
 // import { useEffect, useState } from "react";
 // import DashboardLayout from "../layout/DashboardLayout";
 // import ResumeCard from "../components/ResumeCard";
+// import FileUploadBox from "../components/FileUploadBox";
 // import { getResumes, uploadResume } from "../services/resumeService";
+// import { checkATS } from "../services/atsService";
 
 // export default function ResumeList() {
 //   const [resumes, setResumes] = useState([]);
 //   const [file, setFile] = useState(null);
 //   const [label, setLabel] = useState("");
+//   const [uploading, setUploading] = useState(false);
 
 //   useEffect(() => {
 //     getResumes().then(setResumes);
 //   }, []);
 
-//   const handleUpload = async () => {
-//     console.log("Uploading file:", file);
-//     console.log("With label:", label);
-//     if (!file || !label) return alert("File and label required");
+//   const handleFileSelect = (selectedFile) => {
+//     setFile(selectedFile);
 
-//     const newResume = await uploadResume(file, label);
-//     setResumes((prev) => [newResume, ...prev]);
-//     setFile(null);
-//     setLabel("");
+//     if (selectedFile) {
+//       const nameWithoutExt = selectedFile.name.split(".")[0];
+//       setLabel(nameWithoutExt);
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     if (!file || !label) {
+//       alert("File and label required");
+//       return;
+//     }
+
+//     try {
+//       setUploading(true);
+
+//       const analyzedResume = await checkATS(file);
+//       console.log("ATS Analysis Result:", analyzedResume);
+
+//       const newResume = await uploadResume(file, label);
+
+//       const resumeWithScore = {
+//         ...newResume,
+//         atsScore: analyzedResume.score,
+//       };
+
+//       setResumes((prev) => [resumeWithScore, ...prev]);
+
+//       setFile(null);
+//       setLabel("");
+//       setUploading(false);
+//     } catch (error) {
+//       console.error("Error uploading resume:", error);
+//       setUploading(false);
+//     }
 //   };
 
 //   return (
@@ -113,21 +181,14 @@ export default function ResumeList() {
 //         <p>Upload and manage your resumes for ATS tracking</p>
 //       </div>
 
-//       <div className="upload-row">
-//         <input
-//           type="file"
-//           onChange={(e) => {
-//             const selectedFile = e.target.files[0];
-//             setFile(selectedFile);
+//       <div className="upload-section">
+//         <FileUploadBox onFileSelect={handleFileSelect} />
 
-//             if (selectedFile) {
-//               const nameWithoutExt = selectedFile.name.split(".")[0];
-//               setLabel(nameWithoutExt);
-//             }
-//           }}
-//         />
-//         <button className="btn-primary" onClick={handleUpload}>
-//           Upload Resume
+//         <button
+//           className="btn-primary"
+//           onClick={handleUpload}
+//           disabled={!file || uploading}>
+//           {uploading ? "Uploading..." : "Upload Resume"}
 //         </button>
 //       </div>
 

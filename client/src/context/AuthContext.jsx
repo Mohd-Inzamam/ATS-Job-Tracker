@@ -4,6 +4,7 @@ import {
   loginService,
   registerService,
 } from "../services/authService";
+// import { set } from "mongoose";
 
 const AuthContext = createContext();
 
@@ -51,11 +52,10 @@ export function AuthProvider({ children }) {
   };
 
   const signup = async (payload) => {
-    const data = await registerService(payload);
-    setUser(data.user);
-    localStorage.setItem("token", data.token);
+    // Backend only sends a verification email — no token returned
+    await registerService(payload);
+    // Don't set user or token — user must verify email first
   };
-
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");
@@ -63,7 +63,8 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, signup, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

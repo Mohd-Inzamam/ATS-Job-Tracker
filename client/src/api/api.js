@@ -4,16 +4,17 @@ export async function apiFetch(endpoint, options = {}) {
     const token = localStorage.getItem("token");
     const refreshToken = localStorage.getItem("refreshToken");
 
+    // Build headers conditionally — never send "undefined" as a value
+    const headers = { ...(options.headers || {}) };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (refreshToken) headers["x-refresh-token"] = `Bearer ${refreshToken}`;
+
     let res = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
-        headers: {
-            ...(options.headers || {}),
-            Authorization: token ? `Bearer ${token}` : undefined,
-            "x-refresh-token": refreshToken ? `Bearer ${refreshToken}` : undefined
-        }
+        headers
     });
 
-    // If access token expired
+    // Access token expired — attempt refresh
     if (res.status === 401 && refreshToken) {
         console.log("Access token expired. Attempting refresh...");
 
@@ -29,15 +30,15 @@ export async function apiFetch(endpoint, options = {}) {
             localStorage.setItem("token", refreshData.token);
 
             // Retry original request with new token
+            const retryHeaders = { ...(options.headers || {}) };
+            retryHeaders["Authorization"] = `Bearer ${refreshData.token}`;
+
             res = await fetch(`${API_BASE_URL}${endpoint}`, {
                 ...options,
-                headers: {
-                    ...(options.headers || {}),
-                    Authorization: `Bearer ${refreshData.token}`
-                }
+                headers: retryHeaders
             });
         } else {
-            // Refresh failed → logout
+            // Refresh failed → force logout
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
             window.location.href = "/";
@@ -45,49 +46,10 @@ export async function apiFetch(endpoint, options = {}) {
         }
     }
 
-    if (!res.ok) throw new Error("API Error");
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "API Error");
+    }
 
     return res.json();
 }
-
-// export async function apiFetch(endpoint, options = {}) {
-//     const token = localStorage.getItem("token");
-//     const refreshToken = localStorage.getItem("refreshToken");
-
-//     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-//         ...options,
-//         headers: {
-//             ...(options.headers || {}),
-//             Authorization: token ? `Bearer ${token}` : undefined,
-//             "x-refresh-token": refreshToken ? `Bearer ${refreshToken}` : undefined
-//         }
-//     });
-
-
-//     if (!res.ok) throw new Error("API Error");
-//     return res.json();
-// }
-
-export const checkATS = async (file) => {
-    const formData = new FormData();
-    formData.append("resume", file);
-    const response = await fetch(`${API_BASE_URL}/ats/check`, {
-        method: "POST",
-        body: formData,
-    });
-    return response.json();
-};
-
-export const uploadResume = async (file, label) => {
-    const formData = new FormData();
-    formData.append("resume", file);
-    formData.append("label", label);
-
-    const response = await fetch(`${API_BASE_URL}/resumes/upload`, {
-        method: "POST",
-        body: formData,
-        credentials: "include", // IMPORTANT (JWT cookie)
-    });
-
-    return response.json();
-};

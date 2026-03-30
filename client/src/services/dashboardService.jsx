@@ -6,11 +6,7 @@ export const getDashboardMetrics = async () => {
     apiFetch("/applications"),
   ]);
 
-  const avgScore = resumes.length
-    ? Math.round(
-        resumes.reduce((sum, r) => sum + (r.atsScore || 0), 0) / resumes.length,
-      )
-    : null;
+  const avgScore = null;
 
   return {
     resumeCount: resumes.length,

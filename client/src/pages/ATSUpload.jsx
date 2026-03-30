@@ -4,7 +4,7 @@ import PrimaryButton from "../components/PrimaryButton";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import ScoreBadge from "../components/ScoreBadge";
 import FeedbackCard from "../components/FeedbackCard";
-import { checkATS } from "../api/api";
+import { checkATS } from "../services/atsService";
 import PublicNavbar from "../components/PublicNavbar";
 import { useNavigate } from "react-router-dom";
 import Confetti from "react-confetti";
