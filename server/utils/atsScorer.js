@@ -36,16 +36,16 @@ export const analyzeATS = (rawText) => {
     }
     score += verbScore;
 
-    // 3️⃣ Formatting Compatibility (20)
-    let formatScore = 20;
+    // 3️⃣ Merged Section 3 — Formatting + Red Flags (35 points total)
+    let formatScore = 35;
     ATS_RED_FLAGS.forEach((flag) => {
         if (text.includes(flag)) {
-            formatScore -= 5;
+            formatScore -= 7; // proportional deduction
         }
     });
-    if (formatScore < 20) {
+    if (formatScore < 35) {
         suggestions.push(
-            "Avoid tables, images, columns, or text boxes for ATS compatibility"
+            "Avoid tables, images, columns, or text boxes — they break ATS parsing"
         );
     }
     score += Math.max(formatScore, 0);
@@ -65,16 +65,6 @@ export const analyzeATS = (rawText) => {
     }
 
     score += lengthScore;
-
-    // 5️⃣ ATS Red Flags (15)
-    let redFlagScore = 15;
-    ATS_RED_FLAGS.forEach((flag) => {
-        if (text.includes(flag)) redFlagScore -= 3;
-    });
-    if (redFlagScore < 15) {
-        suggestions.push("Remove complex formatting elements for better parsing");
-    }
-    score += Math.max(redFlagScore, 0);
 
     return {
         score: Math.min(score, 100),

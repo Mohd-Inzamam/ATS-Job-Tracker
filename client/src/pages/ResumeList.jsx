@@ -3,6 +3,7 @@ import DashboardLayout from "../layout/DashboardLayout";
 import ResumeCard from "../components/ResumeCard";
 import FileUploadBox from "../components/FileUploadBox";
 import { getResumes, uploadResume } from "../services/resumeService";
+import { checkATS } from "../api/api";
 
 export default function ResumeList() {
   const [resumes, setResumes] = useState([]);
@@ -29,14 +30,28 @@ export default function ResumeList() {
       return;
     }
 
-    setUploading(true);
+    try {
+      setUploading(true);
 
-    const newResume = await uploadResume(file, label);
+      const analyzedResume = checkATS(file);
+      console.log("ATS Analysis Result:", analyzedResume);
 
-    setResumes((prev) => [newResume, ...prev]);
-    setFile(null);
-    setLabel("");
-    setUploading(false);
+      const newResume = await uploadResume(file, label);
+
+      const resumeWithScore = {
+        ...newResume,
+        atsScore: analyzedResume.score,
+      };
+
+      setResumes((prev) => [resumeWithScore, ...prev]);
+
+      setFile(null);
+      setLabel("");
+      setUploading(false);
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      setUploading(false);
+    }
   };
 
   return (

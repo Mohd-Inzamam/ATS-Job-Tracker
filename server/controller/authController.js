@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/sendMail.js";
+import { sendPasswordResetEmail } from "../utils/sendMail.js";
 
 
 const generateToken = (id) => {
@@ -215,6 +216,18 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     await user.save();
+
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${rawResetToken}`;
+
+    try {
+        await sendPasswordResetEmail(user.email, rawResetToken);
+    } catch (emailError) {
+        console.error("Error sending reset email:", emailError);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save();
+        return res.status(500).json({ message: "Failed to send reset email" });
+    }
 
     res.status(200).json({
         message: "Reset token generated",

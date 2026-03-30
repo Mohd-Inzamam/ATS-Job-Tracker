@@ -46,7 +46,7 @@ export const uploadResume = async (req, res) => {
 // @access  Private
 export const getResumes = async (req, res) => {
     try {
-        const resumes = await Resume.find({ user: req.user._id });
+        const resumes = await Resume.find({ user: req.user._id, isDeleted: false });
         res.json(resumes);
     } catch (error) {
         console.error("Error fetching resumes:", error);
@@ -70,8 +70,8 @@ export const deleteResume = async (req, res) => {
         return res.status(401).json({ message: "Not authorized" });
     }
 
-    fs.unlinkSync(resume.filePath);
-    await resume.deleteOne();
+    resume.isDeleted = true;
+    await resume.save();
 
     res.json({ message: "Resume deleted successfully" });
 };

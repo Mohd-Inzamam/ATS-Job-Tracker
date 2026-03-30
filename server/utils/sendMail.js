@@ -33,3 +33,20 @@ export const sendVerificationEmail = async (email, token) => {
         throw new Error("Failed to send verification email");
     }
 };
+
+export const sendPasswordResetEmail = async (email, token) => {
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+    await transporter.sendMail({
+        from: `"ATS Resume Analyzer" <${process.env.BREVO_SMTP_FROM}>`,
+        to: email,
+        subject: "Reset Your Password",
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetURL}" style="color:blue;">Reset Password</a>
+          <p>This link expires in <strong>10 minutes</strong>.</p>
+          <p>If you didn't request this, ignore this email.</p>
+        `,
+    });
+};

@@ -33,56 +33,57 @@ export const createApplication = async (req, res) => {
     res.status(201).json(application);
 };
 
-
-// @desc    Get all applications
-// @route   GET /api/applications
-// @access  Private
+// ✅ Wrap getApplications
 export const getApplications = async (req, res) => {
-    const applications = await JobApplication.find({
-        user: req.user._id
-    }).populate("resume", "label");
-
-    res.json(applications);
+    try {
+        const applications = await JobApplication.find({
+            user: req.user._id
+        }).populate("resume", "label");
+        res.json(applications);
+    } catch (error) {
+        console.error("Error fetching applications:", error);
+        res.status(500).json({ message: "Failed to fetch applications" });
+    }
 };
 
-
-// @desc    Update application status
-// @route   PUT /api/applications/:id
-// @access  Private
+// ✅ Wrap updateApplicationStatus
 export const updateApplicationStatus = async (req, res) => {
-    const { status } = req.body;
+    try {
+        const { status } = req.body;
+        const application = await JobApplication.findById(req.params.id);
 
-    const application = await JobApplication.findById(req.params.id);
+        if (!application) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+        if (application.user.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: "Not authorized" });
+        }
 
-    if (!application) {
-        return res.status(404).json({ message: "Application not found" });
+        application.status = status || application.status;
+        const updated = await application.save();
+        res.json(updated);
+    } catch (error) {
+        console.error("Error updating application:", error);
+        res.status(500).json({ message: "Failed to update application" });
     }
-
-    if (application.user.toString() !== req.user._id.toString()) {
-        return res.status(401).json({ message: "Not authorized" });
-    }
-
-    application.status = status || application.status;
-    const updated = await application.save();
-
-    res.json(updated);
 };
 
-
-// @desc    Delete application
-// @route   DELETE /api/applications/:id
-// @access  Private
+// ✅ Wrap deleteApplication
 export const deleteApplication = async (req, res) => {
-    const application = await JobApplication.findById(req.params.id);
+    try {
+        const application = await JobApplication.findById(req.params.id);
 
-    if (!application) {
-        return res.status(404).json({ message: "Application not found" });
+        if (!application) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+        if (application.user.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: "Not authorized" });
+        }
+
+        await application.deleteOne();
+        res.json({ message: "Application deleted" });
+    } catch (error) {
+        console.error("Error deleting application:", error);
+        res.status(500).json({ message: "Failed to delete application" });
     }
-
-    if (application.user.toString() !== req.user._id.toString()) {
-        return res.status(401).json({ message: "Not authorized" });
-    }
-
-    await application.deleteOne();
-    res.json({ message: "Application deleted" });
 };
