@@ -5,6 +5,7 @@ import authRoutes from "./routes/authRoutes.js"
 import resumeRoutes from "./routes/resumeRoutes.js"
 import atsRoutes from "./routes/atsRoutes.js"
 import applicationRoutes from "./routes/jobApplicationRoutes.js"
+import matchRoutes from "./routes/matchRoutes.js"
 
 dotenv.config();        // Load env variables
 connectDB();            // Connect to MongoDB
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/resumes", resumeRoutes)
 app.use("/api/ats", atsRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/match", matchRoutes);
 
 // Test route
 app.get("/", (req, res) => {
