@@ -1,17 +1,55 @@
 # ResumeTracker
 
-Project Overview
-----------------
-ResumeTracker is a full-stack Resume / ATS toolkit that lets users upload and parse resumes, run ATS compatibility checks, match resumes to job descriptions, track job applications, and view analytics. The server is built with Node/Express and MongoDB; the client is a React (Vite) app.
+ResumeTracker is a full-stack AI-powered career management platform designed to help job seekers improve their resumes, analyze ATS compatibility, match resumes with job descriptions, track applications, prepare for interviews, and monitor job search performance.
 
-Features
---------
-- User authentication (JWT + refresh tokens), email verification, password reset
-- Upload, store and parse resumes (PDF/DOCX)
-- Public ATS checker and private dashboard ATS scoring
-- Resume ↔ Job Description matcher with a match score
-- Job application tracking (pipeline statuses)
-- Analytics dashboards for resume and application performance
+## Key Features
+
+### Resume Management
+
+* Upload and store PDF/DOCX resumes
+* Resume parsing and text extraction
+* Resume organization and labeling
+
+### ATS Resume Analysis
+
+* ATS compatibility scoring
+* Missing section detection
+* Resume quality insights and recommendations
+
+### Resume ↔ Job Description Matching
+
+* Match percentage calculation
+* Matched keyword identification
+* Missing keyword analysis
+* AI-generated match explanations
+
+### Job Application Tracking
+
+* Track applications across multiple companies
+* Manage application pipeline stages
+* Store job descriptions and associated resumes
+* Status-based workflow management
+
+### AI Interview Preparation
+
+* Automatically generate interview preparation material
+* Personalized interview questions
+* Resume-based preparation guidance
+
+### Analytics Dashboard
+
+* Application performance tracking
+* Resume effectiveness metrics
+* Job search trends and insights
+
+### Authentication & Security
+
+* JWT Authentication
+* Refresh Token Management
+* Email Verification
+* Password Reset Workflow
+* Protected Routes
+
 
 Tech Stack
 ----------
@@ -40,10 +78,6 @@ Architecture
 Screenshots
 -----------
 I'll soon add Screenshots.
-
-Example:
-![ATS Upload](./screenshots/ats-upload.png)
-![Dashboard](./screenshots/dashboard.png)
 
 Installation
 ------------
