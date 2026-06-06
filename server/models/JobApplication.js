@@ -50,6 +50,13 @@ const jobApplicationSchema = new mongoose.Schema(
         missingKeywords: {
             type: [String],
             default: []
+        },
+
+        aiExplanation: {
+            verdict: { type: String, default: "" },
+            quickWins: { type: [String], default: [] },
+            missingSkillsContext: { type: String, default: "" },
+            shouldApply: { type: Boolean, default: true }
         }
     },
     { timestamps: true }

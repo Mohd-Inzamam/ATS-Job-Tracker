@@ -1,6 +1,7 @@
 import Resume from "../models/Resume.js";
 import JobApplication from "../models/JobApplication.js";
 import { calculateMatch } from "../utils/matchScorer.js";
+import { explainMatchWithAI } from "../utils/aiUtils.js";
 
 
 // @desc    Match a resume against a job description directly
@@ -30,9 +31,18 @@ export const analyzeMatch = async (req, res) => {
 
         const result = calculateMatch(resume.parsedText, jobDescription);
 
+        const aiExplanation = await explainMatchWithAI({
+            matchPercentage: result.matchPercentage,
+            matchedKeywords: result.matchedKeywords,
+            missingKeywords: result.missingKeywords,
+            jobTitle: req.body.jobTitle,
+            resumeLabel: resume.label
+        });
+
         res.status(200).json({
             resumeLabel: resume.label,
-            ...result
+            ...result,
+            aiExplanation
         });
     } catch (error) {
         console.error("Error analyzing match:", error);
@@ -70,11 +80,20 @@ export const matchWithApplication = async (req, res) => {
             application.jobDescription
         );
 
+        const aiExplanation = await explainMatchWithAI({
+            matchPercentage: result.matchPercentage,
+            matchedKeywords: result.matchedKeywords,
+            missingKeywords: result.missingKeywords,
+            jobTitle: application.jobTitle,
+            resumeLabel: resume.label
+        });
+
         res.status(200).json({
             companyName: application.companyName,
             jobTitle: application.jobTitle,
             resumeLabel: resume.label,
-            ...result
+            ...result,
+            aiExplanation
         });
     } catch (error) {
         console.error("Error matching with application:", error);

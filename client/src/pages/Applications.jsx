@@ -41,6 +41,21 @@ export default function Applications() {
   const [flashFields, setFlashFields] = useState({});
   const flashTimers = useRef({});
 
+  // Expandable AI advice card list
+  const [expandedCards, setExpandedCards] = useState(new Set());
+
+  const toggleExpandCard = (id) => {
+    setExpandedCards((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
   const [form, setForm] = useState({
     companyName: "",
     jobTitle: "",
@@ -161,6 +176,14 @@ export default function Applications() {
       });
       setShowForm(false);
       resetAiState();
+
+      if (newApp.aiExplanation && newApp.aiExplanation.verdict) {
+        setExpandedCards((prev) => {
+          const next = new Set(prev);
+          next.add(newApp._id);
+          return next;
+        });
+      }
     } catch (err) {
       setError(err.message || "Failed to create application");
     } finally {
@@ -482,6 +505,120 @@ export default function Applications() {
                   </button>
                 </div>
               </div>
+
+              {/* Expandable AI explanation section */}
+              {app.aiExplanation && app.aiExplanation.verdict && (
+                <div style={{ marginTop: "0.8rem", borderTop: "1px solid #e5e7eb", paddingTop: "0.8rem" }}>
+                  <button
+                    onClick={() => toggleExpandCard(app._id)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      fontSize: "12px",
+                      color: "var(--color-text-info)",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}>
+                    ✦ {expandedCards.has(app._id) ? "Hide Advice" : "See AI Advice"}
+                  </button>
+
+                  {expandedCards.has(app._id) && (
+                    <div
+                      style={{
+                        background: "var(--color-background-secondary)",
+                        borderRadius: "var(--border-radius-md)",
+                        padding: "12px",
+                        marginTop: "8px",
+                      }}>
+                      {/* 1. Verdict line with inline Should Apply badge */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                          fontSize: "13px",
+                          color: "var(--color-text-primary)",
+                          fontWeight: 500,
+                        }}>
+                        <span>✦ {app.aiExplanation.verdict}</span>
+                        {app.aiExplanation.shouldApply ? (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              borderRadius: "20px",
+                              fontSize: "11px",
+                              padding: "2px 8px",
+                              color: "#16a34a",
+                              background: "#16a34a18",
+                              fontWeight: 700,
+                            }}>
+                            Apply ✓
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              borderRadius: "20px",
+                              fontSize: "11px",
+                              padding: "2px 8px",
+                              color: "#d97706",
+                              background: "#d9770618",
+                              fontWeight: 700,
+                            }}>
+                            Tailor First
+                          </span>
+                        )}
+                      </div>
+
+                      {/* 3. Quick Wins section */}
+                      {app.aiExplanation.quickWins && app.aiExplanation.quickWins.length > 0 && (
+                        <div style={{ marginTop: "8px" }}>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              textTransform: "uppercase",
+                              color: "#6b7280",
+                              fontWeight: 600,
+                              letterSpacing: "0.05em",
+                            }}>
+                            Quick wins:
+                          </div>
+                          <div style={{ marginTop: "4px" }}>
+                            {app.aiExplanation.quickWins.map((win, i) => (
+                              <div
+                                key={i}
+                                style={{
+                                  fontSize: "12.5px",
+                                  color: "var(--color-text-secondary)",
+                                  lineHeight: 1.7,
+                                }}>
+                                → {win}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 4. Missing skills context */}
+                      {app.aiExplanation.missingSkillsContext && (
+                        <div
+                          style={{
+                            fontStyle: "italic",
+                            fontSize: "12px",
+                            color: "var(--color-text-tertiary)",
+                            marginTop: "6px",
+                          }}>
+                          {app.aiExplanation.missingSkillsContext}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
