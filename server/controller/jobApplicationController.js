@@ -1,7 +1,7 @@
 import JobApplication from "../models/JobApplication.js";
 import Resume from "../models/Resume.js";
 import { calculateMatch } from "../utils/matchScorer.js";
-import { explainMatchWithAI } from "../utils/aiUtils.js";
+import { explainMatchWithAI, generateInterviewPrepWithAI } from "../utils/aiUtils.js";
 
 
 // @desc    Create job application
@@ -89,7 +89,34 @@ export const updateApplicationStatus = async (req, res) => {
         }
 
         application.status = status || application.status;
+
+        if (status === "Interview") {
+            // Populate resume field to get resume.label
+            await application.populate("resume", "label");
+
+            // Generate interview prep
+            const prepResult = await generateInterviewPrepWithAI({
+                jobTitle: application.jobTitle,
+                companyName: application.companyName,
+                jobDescription: application.jobDescription,
+                matchedKeywords: application.matchedKeywords,
+                missingKeywords: application.missingKeywords,
+                resumeLabel: application.resume?.label
+            });
+
+            application.interviewPrep = {
+                ...prepResult,
+                generatedAt: new Date()
+            };
+        }
+
         const updated = await application.save();
+
+        // Ensure resume path is populated for frontend label display
+        if (updated.resume && !updated.populated("resume")) {
+            await updated.populate("resume", "label");
+        }
+
         res.json(updated);
     } catch (error) {
         console.error("Error updating application:", error);

@@ -1,0 +1,86 @@
+# ATS-Job-Tracker — AI Match Explainer Walkthrough
+
+We have successfully implemented the AI-powered match explainer feature, providing candidates with rich, actionable, and personalized career advice based on their resume match against job descriptions.
+
+---
+
+## 📁 Files Created or Modified
+
+### Server-Side (Backend)
+
+#### [NEW] [aiUtils.js](file:///d:/React/Projects/RESUMETRACKER/server/utils/aiUtils.js)
+- Contains shared, pure async Groq functions: `parseJDWithAI(jobDescription)` and `explainMatchWithAI(...)` to keep controllers thin and modular.
+
+#### [MODIFY] [JobApplication.js](file:///d:/React/Projects/RESUMETRACKER/server/models/JobApplication.js)
+- Added the `aiExplanation` schema nested object containing fields for `verdict`, `quickWins` list, `missingSkillsContext`, and `shouldApply` flag.
+
+#### [MODIFY] [aiController.js](file:///d:/React/Projects/RESUMETRACKER/server/controller/aiController.js)
+- Refactored `parseJobDescription` to use `parseJDWithAI` from `aiUtils.js` and added the `explainMatch` controller endpoint.
+
+#### [MODIFY] [aiRoutes.js](file:///d:/React/Projects/RESUMETRACKER/server/routes/aiRoutes.js)
+- Added the `POST /explain-match` route protected by `protect` middleware.
+
+#### [MODIFY] [matchController.js](file:///d:/React/Projects/RESUMETRACKER/server/controller/matchController.js)
+- Modified `analyzeMatch` and `matchWithApplication` to call `explainMatchWithAI` inline and append `aiExplanation` to the matching output.
+
+#### [MODIFY] [jobApplicationController.js](file:///d:/React/Projects/RESUMETRACKER/server/controller/jobApplicationController.js)
+- Refactored `createApplication` to generate and persist `aiExplanation` inline, and populated the `resume` path on create so the frontend displays labels correctly immediately.
+
+---
+
+### Client-Side (Frontend)
+
+#### [MODIFY] [Applications.jsx](file:///d:/React/Projects/RESUMETRACKER/client/src/pages/Applications.jsx)
+- Added `expandedCards` Set state to manage UI expanding/collapsing per card.
+- Automatically expands the newly added card immediately when creating an application with a verdict.
+- Renders an expandable "✦ See AI Advice" container styled with modern CSS variables, including verdict text, inline action badges (Apply / Tailor First), quick wins, and context.
+
+#### [MODIFY] [global.css](file:///d:/React/Projects/RESUMETRACKER/client/src/styles/global.css)
+- Added fallback variables for `--color-text-info`, `--color-background-secondary`, `--border-radius-md`, `--color-text-primary`, `--color-text-secondary`, and `--color-text-tertiary` to `:root` to ensure standard design compliance.
+
+---
+
+## 🔄 Complete Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Client as React Client (Applications.jsx)
+    participant Server as Express Server
+    participant DB as MongoDB (JobApplication.js)
+    participant Groq as Groq AI (llama-3.1-8b-instant)
+
+    Client->>Server: POST /api/applications (form with resumeId, jobDescription, etc.)
+    Server->>Server: calculateMatch(resumeText, jobDescription)
+    Server->>Groq: explainMatchWithAI({ matchPercentage, matchedKeywords, missingKeywords, ... })
+    Groq-->>Server: JSON response (verdict, quickWins, missingSkillsContext, shouldApply)
+    Server->>DB: Save new JobApplication with aiExplanation
+    DB-->>Server: Saved Document
+    Server-->>Client: 201 Created (document populated with resume info + aiExplanation)
+    Client->>Client: Add to application list state & expand advice card automatically
+```
+
+---
+
+## 🛠️ Manual Setup Steps
+No new database migration or NPM dependency installation is strictly required. If there are existing applications in the database, their `aiExplanation.verdict` will default to `""`, causing the "See AI Advice" button to be hidden automatically as expected.
+
+---
+
+## 🧪 Manual Testing Guide
+
+### 1. Test Single Analyze Matching
+- Perform `POST /api/match/analyze` with a payload of `{ resumeId, jobDescription }`.
+- Ensure the JSON response now includes an `aiExplanation` object.
+
+### 2. Test Creating an Application
+- On the **Applications** page, fill in a resume, title, company, and JD, and save the application.
+- Verify that:
+  - The application card appears at the top of the list.
+  - The card is **automatically expanded** to reveal the AI Advice box.
+  - The Advice box shows the custom icon, verdict string, and the color-coded pill (`Apply ✓` in green or `Tailor First` in amber).
+  - Quick wins and missing skills are listed cleanly.
+
+### 3. Test Collapsing & Expanding
+- Click **✦ Hide Advice** to collapse the AI box.
+- Click **✦ See AI Advice** to expand it again.
+- Verify that expanding and collapsing states are isolated per-card and do not affect neighboring application cards.

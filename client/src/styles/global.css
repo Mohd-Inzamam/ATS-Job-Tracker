@@ -23,12 +23,19 @@
     --transition: all 0.25s ease;
 
     /* Theme variables for AI Advice UI */
-    --color-text-info: #4f46e5;
+    --color-text-info: #0284c7;
+    --color-background-info: #e0f2fe;
     --color-background-secondary: #f8fafc;
     --border-radius-md: 8px;
+    --border-radius-lg: 12px;
     --color-text-primary: #111827;
     --color-text-secondary: #4b5563;
     --color-text-tertiary: #9ca3af;
+    --color-border-info: #bae6fd;
+    --color-border-secondary: #e2e8f0;
+    --color-border-tertiary: #f1f5f9;
+    --color-background-success: #dcfce7;
+    --color-text-success: #15803d;
 }
 
 

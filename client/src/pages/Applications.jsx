@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Fragment } from "react";
 import DashboardLayout from "../layout/DashboardLayout";
 import PipelineStatus from "../components/PipelineStatus";
 import {
@@ -43,6 +43,14 @@ export default function Applications() {
 
   // Expandable AI advice card list
   const [expandedCards, setExpandedCards] = useState(new Set());
+
+  // Interview Prep State
+  const [prepCard, setPrepCard] = useState(null);
+  const [prepFilter, setPrepFilter] = useState("All");
+
+  useEffect(() => {
+    setPrepFilter("All");
+  }, [prepCard]);
 
   const toggleExpandCard = (id) => {
     setExpandedCards((prev) => {
@@ -202,6 +210,12 @@ export default function Applications() {
       setApplications((prev) =>
         prev.map((a) => (a._id === updated._id ? updated : a)),
       );
+      if (status === "Interview" && updated.interviewPrep?.questions?.length > 0) {
+        setPrepCard(updated._id);
+      }
+      if (status !== "Interview") {
+        setPrepCard((prev) => (prev === id ? null : prev));
+      }
     } catch {
       setError("Failed to update status");
     }
@@ -421,205 +435,364 @@ export default function Applications() {
       ) : (
         <div className="applications-list" style={{ marginTop: "1.5rem" }}>
           {applications.map((app) => (
-            <div key={app._id} className="application-card card">
-              <div className="app-card-header">
-                <div>
-                  <h3>{app.jobTitle}</h3>
-                  <p className="company-name">{app.companyName}</p>
-                  <p className="resume-label">
-                    Resume: {app.resume?.label || "N/A"}
-                  </p>
-                  <p style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "0.2rem" }}>
-                    Applied: {getDaysSince(app.createdAt)}
-                  </p>
+            <Fragment key={app._id}>
+              <div className="application-card card">
+                <div className="app-card-header">
+                  <div>
+                    <h3>{app.jobTitle}</h3>
+                    <p className="company-name">{app.companyName}</p>
+                    <p className="resume-label">
+                      Resume: {app.resume?.label || "N/A"}
+                    </p>
+                    <p style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "0.2rem" }}>
+                      Applied: {getDaysSince(app.createdAt)}
+                    </p>
 
-                  {/* Match Score Badge */}
-                  {(() => {
-                    const badge = getMatchBadge(app.matchScore);
-                    return (
-                      <div style={{ marginTop: "0.6rem" }}>
+                    {/* Match Score Badge */}
+                    {(() => {
+                      const badge = getMatchBadge(app.matchScore);
+                      return (
+                        <div style={{ marginTop: "0.6rem" }}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "3px 12px",
+                              borderRadius: "999px",
+                              fontSize: "0.8rem",
+                              fontWeight: 700,
+                              color: badge.color,
+                              background: badge.bg,
+                            }}>
+                            {app.matchScore !== null && app.matchScore !== undefined
+                              ? `${app.matchScore}% — `
+                              : ""}{badge.label}
+                          </span>
+
+                          {/* Missing keyword chips (shown when score < 70) */}
+                          {app.matchScore < 70 &&
+                            app.missingKeywords &&
+                            app.missingKeywords.length > 0 && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: "4px",
+                                  marginTop: "0.4rem",
+                                }}>
+                                {app.missingKeywords.slice(0, 3).map((kw, i) => (
+                                  <span
+                                    key={i}
+                                    style={{
+                                      padding: "2px 8px",
+                                      borderRadius: "999px",
+                                      fontSize: "0.72rem",
+                                      background: "#f3f4f6",
+                                      color: "#374151",
+                                      border: "1px solid #e5e7eb",
+                                    }}>
+                                    {kw}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="app-card-actions">
+                    <select
+                      value={app.status}
+                      onChange={(e) =>
+                        handleStatusChange(app._id, e.target.value)
+                      }>
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      className="btn-danger"
+                      onClick={() => handleDelete(app._id)}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                {/* Inline Action Buttons at bottom of card */}
+                {((app.aiExplanation && app.aiExplanation.verdict) || (app.interviewPrep && app.interviewPrep.questions && app.interviewPrep.questions.length > 0)) && (
+                  <div style={{ display: "flex", gap: "16px", marginTop: "0.8rem", borderTop: "1px solid #e5e7eb", paddingTop: "0.8rem" }}>
+                    {app.aiExplanation && app.aiExplanation.verdict && (
+                      <button
+                        onClick={() => toggleExpandCard(app._id)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          fontSize: "12px",
+                          color: "var(--color-text-info)",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}>
+                        ✦ {expandedCards.has(app._id) ? "Hide Advice" : "See AI Advice"}
+                      </button>
+                    )}
+
+                    {app.interviewPrep && app.interviewPrep.questions && app.interviewPrep.questions.length > 0 && (
+                      <button
+                        onClick={() => setPrepCard(prepCard === app._id ? null : app._id)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          fontSize: "12px",
+                          color: "var(--color-text-info)",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}>
+                        🎯 {prepCard === app._id ? "Hide Prep" : "View Interview Prep"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Expanded AI Advice block */}
+                {app.aiExplanation && app.aiExplanation.verdict && expandedCards.has(app._id) && (
+                  <div
+                    style={{
+                      background: "var(--color-background-secondary)",
+                      borderRadius: "var(--border-radius-md)",
+                      padding: "12px",
+                      marginTop: "8px",
+                    }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "8px",
+                        fontSize: "13px",
+                        color: "var(--color-text-primary)",
+                        fontWeight: 500,
+                      }}>
+                      <span>✦ {app.aiExplanation.verdict}</span>
+                      {app.aiExplanation.shouldApply ? (
                         <span
                           style={{
                             display: "inline-block",
-                            padding: "3px 12px",
-                            borderRadius: "999px",
-                            fontSize: "0.8rem",
+                            borderRadius: "20px",
+                            fontSize: "11px",
+                            padding: "2px 8px",
+                            color: "#16a34a",
+                            background: "#16a34a18",
                             fontWeight: 700,
-                            color: badge.color,
-                            background: badge.bg,
                           }}>
-                          {app.matchScore !== null && app.matchScore !== undefined
-                            ? `${app.matchScore}% — `
-                            : ""}{badge.label}
+                          Apply ✓
                         </span>
-
-                        {/* Missing keyword chips (shown when score < 70) */}
-                        {app.matchScore < 70 &&
-                          app.missingKeywords &&
-                          app.missingKeywords.length > 0 && (
-                            <div
-                              style={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: "4px",
-                                marginTop: "0.4rem",
-                              }}>
-                              {app.missingKeywords.slice(0, 3).map((kw, i) => (
-                                <span
-                                  key={i}
-                                  style={{
-                                    padding: "2px 8px",
-                                    borderRadius: "999px",
-                                    fontSize: "0.72rem",
-                                    background: "#f3f4f6",
-                                    color: "#374151",
-                                    border: "1px solid #e5e7eb",
-                                  }}>
-                                  {kw}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                      </div>
-                    );
-                  })()}
-                </div>
-
-                <div className="app-card-actions">
-                  <select
-                    value={app.status}
-                    onChange={(e) =>
-                      handleStatusChange(app._id, e.target.value)
-                    }>
-                    {STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    className="btn-danger"
-                    onClick={() => handleDelete(app._id)}>
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              {/* Expandable AI explanation section */}
-              {app.aiExplanation && app.aiExplanation.verdict && (
-                <div style={{ marginTop: "0.8rem", borderTop: "1px solid #e5e7eb", paddingTop: "0.8rem" }}>
-                  <button
-                    onClick={() => toggleExpandCard(app._id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      fontSize: "12px",
-                      color: "var(--color-text-info)",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}>
-                    ✦ {expandedCards.has(app._id) ? "Hide Advice" : "See AI Advice"}
-                  </button>
-
-                  {expandedCards.has(app._id) && (
-                    <div
-                      style={{
-                        background: "var(--color-background-secondary)",
-                        borderRadius: "var(--border-radius-md)",
-                        padding: "12px",
-                        marginTop: "8px",
-                      }}>
-                      {/* 1. Verdict line with inline Should Apply badge */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          flexWrap: "wrap",
-                          gap: "8px",
-                          fontSize: "13px",
-                          color: "var(--color-text-primary)",
-                          fontWeight: 500,
-                        }}>
-                        <span>✦ {app.aiExplanation.verdict}</span>
-                        {app.aiExplanation.shouldApply ? (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              borderRadius: "20px",
-                              fontSize: "11px",
-                              padding: "2px 8px",
-                              color: "#16a34a",
-                              background: "#16a34a18",
-                              fontWeight: 700,
-                            }}>
-                            Apply ✓
-                          </span>
-                        ) : (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              borderRadius: "20px",
-                              fontSize: "11px",
-                              padding: "2px 8px",
-                              color: "#d97706",
-                              background: "#d9770618",
-                              fontWeight: 700,
-                            }}>
-                            Tailor First
-                          </span>
-                        )}
-                      </div>
-
-                      {/* 3. Quick Wins section */}
-                      {app.aiExplanation.quickWins && app.aiExplanation.quickWins.length > 0 && (
-                        <div style={{ marginTop: "8px" }}>
-                          <div
-                            style={{
-                              fontSize: "11px",
-                              textTransform: "uppercase",
-                              color: "#6b7280",
-                              fontWeight: 600,
-                              letterSpacing: "0.05em",
-                            }}>
-                            Quick wins:
-                          </div>
-                          <div style={{ marginTop: "4px" }}>
-                            {app.aiExplanation.quickWins.map((win, i) => (
-                              <div
-                                key={i}
-                                style={{
-                                  fontSize: "12.5px",
-                                  color: "var(--color-text-secondary)",
-                                  lineHeight: 1.7,
-                                }}>
-                                → {win}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                      ) : (
+                        <span
+                          style={{
+                            display: "inline-block",
+                            borderRadius: "20px",
+                            fontSize: "11px",
+                            padding: "2px 8px",
+                            color: "#d97706",
+                            background: "#d9770618",
+                            fontWeight: 700,
+                          }}>
+                          Tailor First
+                        </span>
                       )}
+                    </div>
 
-                      {/* 4. Missing skills context */}
-                      {app.aiExplanation.missingSkillsContext && (
+                    {app.aiExplanation.quickWins && app.aiExplanation.quickWins.length > 0 && (
+                      <div style={{ marginTop: "8px" }}>
                         <div
                           style={{
-                            fontStyle: "italic",
-                            fontSize: "12px",
-                            color: "var(--color-text-tertiary)",
-                            marginTop: "6px",
+                            fontSize: "11px",
+                            textTransform: "uppercase",
+                            color: "#6b7280",
+                            fontWeight: 600,
+                            letterSpacing: "0.05em",
                           }}>
-                          {app.aiExplanation.missingSkillsContext}
+                          Quick wins:
                         </div>
-                      )}
+                        <div style={{ marginTop: "4px" }}>
+                          {app.aiExplanation.quickWins.map((win, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                fontSize: "12.5px",
+                                color: "var(--color-text-secondary)",
+                                lineHeight: 1.7,
+                              }}>
+                              → {win}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {app.aiExplanation.missingSkillsContext && (
+                      <div
+                        style={{
+                          fontStyle: "italic",
+                          fontSize: "12px",
+                          color: "var(--color-text-tertiary)",
+                          marginTop: "6px",
+                        }}>
+                        {app.aiExplanation.missingSkillsContext}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Expandable AI Interview Prep Panel (inline below application card) */}
+              {prepCard === app._id && app.interviewPrep && app.interviewPrep.questions && app.interviewPrep.questions.length > 0 && (
+                <div
+                  style={{
+                    background: "var(--color-background-primary)",
+                    border: "0.5px solid var(--color-border-info)",
+                    borderRadius: "var(--border-radius-lg)",
+                    padding: "1.25rem",
+                    marginTop: "-4px",
+                    marginBottom: "1rem",
+                  }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                    <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>
+                      🎯 Interview Prep <span style={{ fontSize: "13px", color: "var(--color-text-secondary)", fontWeight: 400, marginLeft: "4px" }}>· {app.companyName}</span>
+                    </div>
+                    <button
+                      onClick={() => setPrepCard(null)}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        fontSize: "18px",
+                        cursor: "pointer",
+                        color: "var(--color-text-secondary)",
+                        padding: "0 4px",
+                        lineHeight: 1,
+                      }}>
+                      ×
+                    </button>
+                  </div>
+
+                  {app.interviewPrep.watchOutFor && (
+                    <div style={{ borderBottom: "0.5px solid var(--color-border-tertiary)", paddingBottom: "0.75rem", marginBottom: "0.75rem" }}>
+                      <div style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-text-tertiary)", fontWeight: 600, letterSpacing: "0.05em" }}>
+                        Watch out for:
+                      </div>
+                      <div style={{ fontStyle: "italic", fontSize: "13px", color: "var(--color-text-secondary)", marginTop: "4px" }}>
+                        "{app.interviewPrep.watchOutFor}"
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "1rem" }}>
+                    {["All", "Technical", "Behavioural", "Culture Fit"].map((filter) => {
+                      const isActive = prepFilter === filter;
+                      return (
+                        <button
+                          key={filter}
+                          onClick={() => setPrepFilter(filter)}
+                          style={{
+                            fontSize: "12px",
+                            borderRadius: "20px",
+                            padding: "3px 12px",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            ...(isActive
+                              ? {
+                                  background: "var(--color-background-info)",
+                                  color: "var(--color-text-info)",
+                                  border: "none",
+                                  fontWeight: 600,
+                                }
+                              : {
+                                  background: "transparent",
+                                  color: "var(--color-text-secondary)",
+                                  border: "0.5px solid var(--color-border-secondary)",
+                                }),
+                          }}>
+                          {filter}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {app.interviewPrep.questions
+                      .filter((q) => prepFilter === "All" || q.type === prepFilter)
+                      .map((q, idx, arr) => {
+                        let badgeBg = "var(--color-background-info)";
+                        let badgeColor = "var(--color-text-info)";
+                        if (q.type === "Behavioural") {
+                          badgeBg = "#EEEDFE";
+                          badgeColor = "#534AB7";
+                        } else if (q.type === "Culture Fit") {
+                          badgeBg = "var(--color-background-success)";
+                          badgeColor = "var(--color-text-success)";
+                        }
+
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              paddingBottom: idx < arr.length - 1 ? "1rem" : 0,
+                              borderBottom: idx < arr.length - 1 ? "0.5px solid var(--color-border-tertiary)" : "none",
+                            }}>
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", flexWrap: "wrap" }}>
+                              <span
+                                style={{
+                                  fontSize: "10px",
+                                  fontWeight: 700,
+                                  textTransform: "uppercase",
+                                  background: badgeBg,
+                                  color: badgeColor,
+                                  padding: "2px 8px",
+                                  borderRadius: "12px",
+                                  marginTop: "2px",
+                                }}>
+                                {q.type}
+                              </span>
+                              <div style={{ flex: 1, fontSize: "13px", color: "var(--color-text-primary)", fontWeight: 500 }}>
+                                {q.question}
+                              </div>
+                            </div>
+                            {q.hint && (
+                              <div style={{ fontSize: "12.5px", color: "var(--color-text-secondary)", marginTop: "4px", paddingLeft: "8px" }}>
+                                → {q.hint}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {app.interviewPrep.tipsForThisRole && app.interviewPrep.tipsForThisRole.length > 0 && (
+                    <div style={{ borderTop: "0.5px solid var(--color-border-tertiary)", paddingTop: "0.75rem", marginTop: "1rem" }}>
+                      <div style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-text-tertiary)", fontWeight: 600, letterSpacing: "0.05em", marginBottom: "6px" }}>
+                        Tips for this role:
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        {app.interviewPrep.tipsForThisRole.map((tip, i) => (
+                          <div key={i} style={{ fontSize: "12.5px", color: "var(--color-text-secondary)" }}>
+                            • {tip}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
               )}
-            </div>
+            </Fragment>
           ))}
         </div>
       )}

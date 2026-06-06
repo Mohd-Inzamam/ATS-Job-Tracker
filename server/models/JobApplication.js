@@ -57,6 +57,17 @@ const jobApplicationSchema = new mongoose.Schema(
             quickWins: { type: [String], default: [] },
             missingSkillsContext: { type: String, default: "" },
             shouldApply: { type: Boolean, default: true }
+        },
+
+        interviewPrep: {
+            questions: [{
+                type: { type: String },
+                question: { type: String },
+                hint: { type: String }
+            }],
+            tipsForThisRole: { type: [String], default: [] },
+            watchOutFor: { type: String, default: "" },
+            generatedAt: { type: Date, default: null }
         }
     },
     { timestamps: true }
