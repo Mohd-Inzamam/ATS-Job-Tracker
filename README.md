@@ -129,5 +129,3 @@ Future Enhancements
 - Job import (from LinkedIn / CSV) and bulk resume parsing
 - CI/CD pipeline and Docker Compose for easy local deployment
 - Automated tests (unit + integration) and API contract tests
-
-If you want, I can generate a .env.example or scaffold screenshots folder and a brief
