@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import DashboardLayout from "../layout/DashboardLayout";
 import PipelineStatus from "../components/PipelineStatus";
 import {
@@ -8,6 +8,7 @@ import {
   deleteApplication,
 } from "../services/applicationService";
 import { getResumes } from "../services/resumeService";
+import { parseJD } from "../services/aiService";
 
 const STATUSES = ["Saved", "Applied", "Interview", "Offer", "Rejected"];
 
@@ -31,6 +32,14 @@ export default function Applications() {
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // AI parsing state
+  const [parsing, setParsing] = useState(false);
+  const [aiParsed, setAiParsed] = useState(false);
+  const [detectedSkills, setDetectedSkills] = useState([]);
+  const [detectedSeniority, setDetectedSeniority] = useState("");
+  const [flashFields, setFlashFields] = useState({});
+  const flashTimers = useRef({});
 
   const [form, setForm] = useState({
     companyName: "",
@@ -57,6 +66,68 @@ export default function Applications() {
     };
     load();
   }, []);
+
+  // Flash a field with the .ai-filled class for 2000ms
+  const flashField = (fieldName) => {
+    if (flashTimers.current[fieldName]) {
+      clearTimeout(flashTimers.current[fieldName]);
+    }
+    setFlashFields((prev) => ({ ...prev, [fieldName]: true }));
+    flashTimers.current[fieldName] = setTimeout(() => {
+      setFlashFields((prev) => ({ ...prev, [fieldName]: false }));
+    }, 2000);
+  };
+
+  // Fires on textarea blur — triggers AI parse
+  const handleJDBlur = async () => {
+    if (form.jobDescription.trim().length <= 100) return;
+    if (parsing) return;
+
+    setParsing(true);
+    try {
+      const parsed = await parseJD(form.jobDescription);
+
+      setForm((prev) => {
+        const updates = {};
+        let companyFilled = false;
+        let titleFilled = false;
+
+        if (!prev.companyName && parsed.companyName) {
+          updates.companyName = parsed.companyName;
+          companyFilled = true;
+        }
+        if (!prev.jobTitle && parsed.jobTitle) {
+          updates.jobTitle = parsed.jobTitle;
+          titleFilled = true;
+        }
+
+        // Trigger flash after state update
+        if (companyFilled) flashField("companyName");
+        if (titleFilled) flashField("jobTitle");
+
+        return { ...prev, ...updates };
+      });
+
+      setDetectedSkills(parsed.skills ?? []);
+      setDetectedSeniority(parsed.seniority ?? "");
+      setAiParsed(true);
+    } catch (err) {
+      // Silently ignore — form still works
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  // Reset all AI state
+  const resetAiState = () => {
+    setParsing(false);
+    setAiParsed(false);
+    setDetectedSkills([]);
+    setDetectedSeniority("");
+    setFlashFields({});
+    Object.values(flashTimers.current).forEach(clearTimeout);
+    flashTimers.current = {};
+  };
 
   // Build pipeline counts from real data
   const pipelineData = STATUSES.reduce((acc, status) => {
@@ -89,11 +160,17 @@ export default function Applications() {
         resumeId: "",
       });
       setShowForm(false);
+      resetAiState();
     } catch (err) {
       setError(err.message || "Failed to create application");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    resetAiState();
   };
 
   const handleStatusChange = async (id, status) => {
@@ -130,7 +207,13 @@ export default function Applications() {
         <h2>Applications</h2>
         <button
           className="btn-primary"
-          onClick={() => setShowForm((prev) => !prev)}>
+          onClick={() => {
+            if (showForm) {
+              handleCancel();
+            } else {
+              setShowForm(true);
+            }
+          }}>
           {showForm ? "Cancel" : "+ Add Application"}
         </button>
       </div>
@@ -145,12 +228,101 @@ export default function Applications() {
         <div className="card" style={{ marginTop: "1.5rem" }}>
           <h3>New Application</h3>
 
+          {/* Job Description — first so AI can pre-fill the fields below */}
+          <div className="form-group" style={{ marginTop: "1rem" }}>
+            <label>Job Description</label>
+            <textarea
+              rows={5}
+              placeholder="Paste the job description here… AI will auto-fill Company & Title on blur"
+              value={form.jobDescription}
+              onChange={(e) =>
+                setForm({ ...form, jobDescription: e.target.value })
+              }
+              onBlur={handleJDBlur}
+              style={{ width: "100%", resize: "vertical" }}
+            />
+
+            {/* Parsing spinner */}
+            {parsing && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginTop: "6px",
+                }}>
+                <span className="parse-spinner" />
+                <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                  Extracting details from JD…
+                </span>
+              </div>
+            )}
+
+            {/* Success banner */}
+            {aiParsed && !parsing && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "8px",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  fontSize: "13px",
+                  color: "#15803d",
+                }}>
+                <span>✓ Auto-filled from job description</span>
+                <button
+                  onClick={() => setAiParsed(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#15803d",
+                    fontSize: "16px",
+                    lineHeight: 1,
+                    padding: "0 4px",
+                  }}>
+                  ×
+                </button>
+              </div>
+            )}
+
+            {/* Detected skill chips */}
+            {detectedSkills.length > 0 && (
+              <div style={{ marginTop: "10px" }}>
+                <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 6px 0" }}>
+                  Key requirements detected:
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {detectedSkills.map((skill, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        background: "#f3f4f6",
+                        border: "0.5px solid #e5e7eb",
+                        borderRadius: "20px",
+                        padding: "2px 10px",
+                        fontSize: "12px",
+                        color: "#4b5563",
+                      }}>
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="form-group">
             <label>Company Name</label>
             <input
               type="text"
               placeholder="e.g. Google"
               value={form.companyName}
+              className={flashFields.companyName ? "ai-filled" : ""}
               onChange={(e) =>
                 setForm({ ...form, companyName: e.target.value })
               }
@@ -158,11 +330,28 @@ export default function Applications() {
           </div>
 
           <div className="form-group">
-            <label>Job Title</label>
+            <label>
+              Job Title{" "}
+              {detectedSeniority && (
+                <span
+                  style={{
+                    background: "#eff6ff",
+                    color: "#1d4ed8",
+                    borderRadius: "20px",
+                    padding: "2px 8px",
+                    fontSize: "11px",
+                    fontWeight: 500,
+                    marginLeft: "6px",
+                  }}>
+                  {detectedSeniority}
+                </span>
+              )}
+            </label>
             <input
               type="text"
               placeholder="e.g. Frontend Developer"
               value={form.jobTitle}
+              className={flashFields.jobTitle ? "ai-filled" : ""}
               onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
             />
           </div>
@@ -181,24 +370,20 @@ export default function Applications() {
             </select>
           </div>
 
-          <div className="form-group">
-            <label>Job Description</label>
-            <textarea
-              rows={5}
-              placeholder="Paste the job description here..."
-              value={form.jobDescription}
-              onChange={(e) =>
-                setForm({ ...form, jobDescription: e.target.value })
-              }
-            />
+          <div style={{ display: "flex", gap: "10px", marginTop: "0.5rem" }}>
+            <button
+              className="btn-primary"
+              onClick={handleCreate}
+              disabled={submitting}>
+              {submitting ? "Saving…" : "Save Application"}
+            </button>
+            <button
+              className="delete-btn"
+              style={{ border: "1px solid #e5e7eb", color: "#6b7280" }}
+              onClick={handleCancel}>
+              Cancel
+            </button>
           </div>
-
-          <button
-            className="btn-primary"
-            onClick={handleCreate}
-            disabled={submitting}>
-            {submitting ? "Saving..." : "Save Application"}
-          </button>
         </div>
       )}
 
@@ -213,7 +398,7 @@ export default function Applications() {
       ) : (
         <div className="applications-list" style={{ marginTop: "1.5rem" }}>
           {applications.map((app) => (
-              <div key={app._id} className="application-card card">
+            <div key={app._id} className="application-card card">
               <div className="app-card-header">
                 <div>
                   <h3>{app.jobTitle}</h3>
