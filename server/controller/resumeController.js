@@ -1,5 +1,6 @@
 import Resume from "../models/Resume.js";
 import { parseResume } from "../utils/resumeParser.js";
+import { analyzeATS } from "../utils/atsScorer.js";
 import fs from "fs";
 
 
@@ -20,8 +21,8 @@ export const uploadResume = async (req, res) => {
         const parsedText = await parseResume(req.file.path, fileType);
         console.log("FILE 👉", req.file);
         console.log("LABEL 👉", req.body.label);
-        // console.log("USER 👉", req.user);
 
+        const atsResult = analyzeATS(parsedText);
 
         const resume = await Resume.create({
             user: req.user._id,
@@ -29,7 +30,9 @@ export const uploadResume = async (req, res) => {
             fileName: req.file.filename,
             filePath: req.file.path,
             fileType,
-            parsedText
+            parsedText,
+            atsScore: atsResult.score,
+            atsSuggestions: atsResult.suggestions
         });
 
         res.status(201).json(resume);

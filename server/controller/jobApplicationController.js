@@ -1,5 +1,6 @@
 import JobApplication from "../models/JobApplication.js";
 import Resume from "../models/Resume.js";
+import { calculateMatch } from "../utils/matchScorer.js";
 
 
 // @desc    Create job application
@@ -29,6 +30,17 @@ export const createApplication = async (req, res) => {
         jobTitle,
         jobDescription
     });
+
+    // Run match analysis against the selected resume
+    try {
+        const matchResult = calculateMatch(resume.parsedText, jobDescription);
+        application.matchScore = matchResult.matchPercentage;
+        application.matchedKeywords = matchResult.matchedKeywords;
+        application.missingKeywords = matchResult.missingKeywords;
+        await application.save();
+    } catch (matchErr) {
+        console.error("Match analysis failed (non-fatal):", matchErr);
+    }
 
     res.status(201).json(application);
 };

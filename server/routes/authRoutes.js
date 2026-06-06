@@ -7,7 +7,8 @@ import {
     verifyEmail,
     forgotPassword,
     resetPassword,
-    refreshAccessToken
+    refreshAccessToken,
+    markOnboardingComplete
 } from "../controller/authController.js";
 import protect from "../middleware/authMiddleware.js";
 
@@ -21,5 +22,6 @@ router.get("/verify-email/:token", verifyEmail);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/refresh", refreshAccessToken);
+router.patch("/onboarding-complete", protect, markOnboardingComplete);
 
 export default router;

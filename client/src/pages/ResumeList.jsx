@@ -7,7 +7,6 @@ import {
   uploadResume,
   deleteResume,
 } from "../services/resumeService";
-import { checkATS } from "../services/atsService";
 
 export default function ResumeList() {
   const [resumes, setResumes] = useState([]);
@@ -39,13 +38,8 @@ export default function ResumeList() {
       setError("");
       setUploading(true);
 
-      // Run ATS check and upload in parallel
-      const [atsResult, newResume] = await Promise.all([
-        checkATS(file),
-        uploadResume(file, label),
-      ]);
-
-      console.log("ATS Score:", atsResult.atsScore);
+      // Server handles ATS scoring during upload — response includes atsScore & atsSuggestions
+      const newResume = await uploadResume(file, label);
 
       setResumes((prev) => [newResume, ...prev]);
       setFile(null);
@@ -110,6 +104,8 @@ export default function ResumeList() {
               key={resume._id}
               resume={resume}
               onDelete={handleDelete}
+              atsScore={resume.atsScore}
+              atsSuggestions={resume.atsSuggestions}
             />
           ))}
         </div>

@@ -11,6 +11,19 @@ import { getResumes } from "../services/resumeService";
 
 const STATUSES = ["Saved", "Applied", "Interview", "Offer", "Rejected"];
 
+const getMatchBadge = (score) => {
+  if (score === null || score === undefined)
+    return { label: "No Score", color: "#6b7280", bg: "#6b728018" };
+  if (score >= 70) return { label: "Strong Match", color: "#16a34a", bg: "#16a34a18" };
+  if (score >= 40) return { label: "Partial Match", color: "#d97706", bg: "#d9770618" };
+  return { label: "Low Match", color: "#dc2626", bg: "#dc262618" };
+};
+
+const getDaysSince = (dateStr) => {
+  const days = Math.floor((Date.now() - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+  return days === 0 ? "Today" : days === 1 ? "1 day ago" : `${days} days ago`;
+};
+
 export default function Applications() {
   const [applications, setApplications] = useState([]);
   const [resumes, setResumes] = useState([]);
@@ -200,7 +213,7 @@ export default function Applications() {
       ) : (
         <div className="applications-list" style={{ marginTop: "1.5rem" }}>
           {applications.map((app) => (
-            <div key={app._id} className="application-card card">
+              <div key={app._id} className="application-card card">
               <div className="app-card-header">
                 <div>
                   <h3>{app.jobTitle}</h3>
@@ -208,6 +221,60 @@ export default function Applications() {
                   <p className="resume-label">
                     Resume: {app.resume?.label || "N/A"}
                   </p>
+                  <p style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "0.2rem" }}>
+                    Applied: {getDaysSince(app.createdAt)}
+                  </p>
+
+                  {/* Match Score Badge */}
+                  {(() => {
+                    const badge = getMatchBadge(app.matchScore);
+                    return (
+                      <div style={{ marginTop: "0.6rem" }}>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "3px 12px",
+                            borderRadius: "999px",
+                            fontSize: "0.8rem",
+                            fontWeight: 700,
+                            color: badge.color,
+                            background: badge.bg,
+                          }}>
+                          {app.matchScore !== null && app.matchScore !== undefined
+                            ? `${app.matchScore}% — `
+                            : ""}{badge.label}
+                        </span>
+
+                        {/* Missing keyword chips (shown when score < 70) */}
+                        {app.matchScore < 70 &&
+                          app.missingKeywords &&
+                          app.missingKeywords.length > 0 && (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "4px",
+                                marginTop: "0.4rem",
+                              }}>
+                              {app.missingKeywords.slice(0, 3).map((kw, i) => (
+                                <span
+                                  key={i}
+                                  style={{
+                                    padding: "2px 8px",
+                                    borderRadius: "999px",
+                                    fontSize: "0.72rem",
+                                    background: "#f3f4f6",
+                                    color: "#374151",
+                                    border: "1px solid #e5e7eb",
+                                  }}>
+                                  {kw}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="app-card-actions">

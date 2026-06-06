@@ -4,6 +4,7 @@ import StepIndicator from "../components/StepIndicator";
 import FileUploadBox from "../components/FileUploadBox";
 import { updateProfile } from "../services/profileService";
 import { uploadResume } from "../services/resumeService";
+import { useAuth } from "../context/AuthContext";
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -14,6 +15,7 @@ export default function Onboarding() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { completeOnboarding } = useAuth();
 
   const handleStep1Next = async () => {
     if (!role || !experience) {
@@ -50,7 +52,7 @@ export default function Onboarding() {
       setError("");
       setUploading(true);
       await uploadResume(file, label);
-      localStorage.setItem("onboardingComplete", "true");
+      await completeOnboarding();
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Failed to upload resume");
@@ -59,8 +61,8 @@ export default function Onboarding() {
     }
   };
 
-  const handleSkip = () => {
-    localStorage.setItem("onboardingComplete", "true");
+  const handleSkip = async () => {
+    await completeOnboarding();
     navigate("/dashboard");
   };
 

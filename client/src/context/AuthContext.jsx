@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getUserProfileService,
   loginService,
   registerService,
 } from "../services/authService";
+import { apiFetch } from "../api/api";
 // import { set } from "mongoose";
 
 const AuthContext = createContext();
@@ -43,12 +45,25 @@ export function AuthProvider({ children }) {
   }, []);
 
   console.log("AuthProvider - user:", user, "loading:", loading);
+  const navigate = useNavigate();
+
   const login = async (credentials) => {
     const data = await loginService(credentials);
     setUser(data.user);
     localStorage.setItem("token", data.token);
     localStorage.setItem("refreshToken", data.refreshToken);
+    // Redirect based on onboarding status
+    if (!data.user.onboardingComplete) {
+      navigate("/onboarding");
+    } else {
+      navigate("/dashboard");
+    }
     return data.user;
+  };
+
+  const completeOnboarding = async () => {
+    await apiFetch("/auth/onboarding-complete", { method: "PATCH" });
+    setUser((prev) => ({ ...prev, onboardingComplete: true }));
   };
 
   const signup = async (payload) => {
@@ -64,7 +79,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, signup, logout, setUser }}>
+      value={{ user, loading, login, signup, logout, setUser, completeOnboarding }}>
       {children}
     </AuthContext.Provider>
   );

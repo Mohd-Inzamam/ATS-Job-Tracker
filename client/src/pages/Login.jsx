@@ -1,6 +1,5 @@
-// ✅ Full corrected Login.jsx
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -8,7 +7,6 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +14,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(form);
-      navigate("/dashboard");
+      // Navigation is handled inside AuthContext.login() based on onboardingComplete
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {

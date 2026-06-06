@@ -6,8 +6,6 @@ export default function ProtectedRoute({ children }) {
   const location = useLocation();
 
   const token = localStorage.getItem("token");
-  const onboardingComplete =
-    localStorage.getItem("onboardingComplete") === "true";
 
   if (loading) {
     return <div className="container">Loading...</div>;
@@ -24,7 +22,7 @@ export default function ProtectedRoute({ children }) {
   }
 
   // Logged in but onboarding not complete
-  if (!onboardingComplete && location.pathname !== "/onboarding") {
+  if (!user.onboardingComplete && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }
 

@@ -62,6 +62,11 @@ const userSchema = new mongoose.Schema(
             select: false
         },
         resetPasswordExpire: Date,
+
+        onboardingComplete: {
+            type: Boolean,
+            default: false
+        }
     },
     { timestamps: true }
 );

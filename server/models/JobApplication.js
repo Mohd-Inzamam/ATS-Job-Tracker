@@ -35,6 +35,21 @@ const jobApplicationSchema = new mongoose.Schema(
             type: String,
             enum: ["Saved", "Applied", "Interview", "Offer", "Rejected"],
             default: "Saved"
+        },
+
+        matchScore: {
+            type: Number,
+            default: null
+        },
+
+        matchedKeywords: {
+            type: [String],
+            default: []
+        },
+
+        missingKeywords: {
+            type: [String],
+            default: []
         }
     },
     { timestamps: true }

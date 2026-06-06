@@ -125,7 +125,8 @@ export const loginUser = async (req, res) => {
                 user: {
                     _id: user._id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    onboardingComplete: user.onboardingComplete
                 },
                 token: generateToken(user._id),
                 refreshToken
@@ -145,7 +146,8 @@ export const getUserProfile = async (req, res) => {
         res.status(200).json({
             _id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            onboardingComplete: user.onboardingComplete
         });
     } else {
         res.status(404).json({ message: "User not found" });
@@ -259,4 +261,19 @@ export const resetPassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Password reset successful" });
+};
+
+export const markOnboardingComplete = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        user.onboardingComplete = true;
+        await user.save();
+        res.status(200).json({ onboardingComplete: true });
+    } catch (error) {
+        console.error("Error marking onboarding complete:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 };

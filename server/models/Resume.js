@@ -50,6 +50,16 @@ const resumeSchema = new mongoose.Schema(
             required: true
         },
 
+        atsScore: {
+            type: Number,
+            default: null
+        },
+
+        atsSuggestions: {
+            type: [String],
+            default: []
+        },
+
         isDeleted: {
             type: Boolean,
             default: false

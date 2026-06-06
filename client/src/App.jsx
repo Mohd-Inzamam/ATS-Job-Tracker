@@ -10,6 +10,10 @@ import Profile from "./pages/Profile";
 import Applications from "./pages/Applications";
 import ResumeList from "./pages/ResumeList";
 import "./styles/global.css";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Match from "./pages/Match";
+import Analytics from "./pages/Analytics";
 
 export default function App() {
   return (
@@ -19,7 +23,8 @@ export default function App() {
       <Route path="/ats" element={<ATSUpload />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-
+      <Route path="/forgot-password" element={<ForgotPassword />} />{" "}
+      <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
       {/* Protected Routes */}
       <Route
         path="/dashboard"
@@ -61,6 +66,22 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/match"
+        element={
+          <ProtectedRoute>
+            <Match />
+          </ProtectedRoute>
+        }
+      />{" "}
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />{" "}
     </Routes>
   );
 }
