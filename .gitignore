@@ -16,6 +16,9 @@ client/build
 client/uploads
 server/uploads
 
+# walkthroughs
+ResumeWalkthroughs/
+
 # logs
 npm-debug.log*
 yarn-debug.log*
