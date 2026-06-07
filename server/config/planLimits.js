@@ -1,7 +1,7 @@
 export const PLAN_LIMITS = {
     free: {
-        resumes: 1,
-        applications: 5,
+        resumes: 2,
+        applications: 10,
         aiFeatures: false,
         analyticsAccess: false,
         matchAccess: false
