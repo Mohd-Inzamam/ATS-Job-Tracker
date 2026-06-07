@@ -28,6 +28,7 @@ export default function FileUploadBox({ onFileSelect }) {
       )}
 
       <input
+        id="resume-upload-input"
         ref={inputRef}
         type="file"
         accept=".pdf,.doc,.docx"

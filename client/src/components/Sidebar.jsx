@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import DarkModeToggle from "./DarkModeToggle";
 
 export default function Sidebar() {
   const { user } = useAuth();
@@ -62,6 +63,7 @@ export default function Sidebar() {
             {user?.plan === "pro" ? "⭐ Pro" : "Free"}
           </span>
         </div>
+        <DarkModeToggle />
       </div>
     </aside>
   );

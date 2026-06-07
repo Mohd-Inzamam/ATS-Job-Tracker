@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../layout/DashboardLayout";
+import EmptyState from "../components/EmptyState";
 import PipelineStatus from "../components/PipelineStatus";
 import {
   getApplications,
@@ -248,6 +249,7 @@ export default function Applications() {
 
   return (
     <DashboardLayout>
+      <div className="page-enter">
       <div className="page-header">
         <h2>Applications</h2>
         <button
@@ -463,18 +465,21 @@ export default function Applications() {
       )}
 
       {/* Applications List */}
-      {applications.length === 0 ? (
-        <div className="card center" style={{ marginTop: "2rem" }}>
-          <p>No applications yet.</p>
-          <p style={{ color: "#6b7280", fontSize: "14px" }}>
-            Add your first application to start tracking your job search.
-          </p>
-        </div>
+      {!loading && applications.length === 0 ? (
+        <EmptyState
+          icon="💼"
+          title="Your pipeline is empty"
+          body="Add your first job application — paste a JD and AI will auto-fill the details."
+          ctaLabel="Add Application"
+          onCta={() => setShowForm(true)}
+          secondaryLabel="Browse jobs on LinkedIn →"
+          onSecondary={() => window.open("https://linkedin.com/jobs", "_blank")}
+        />
       ) : (
         <div className="applications-list" style={{ marginTop: "1.5rem" }}>
           {applications.map((app) => (
             <Fragment key={app._id}>
-              <div className="application-card card">
+              <div className="application-card card stagger-item">
                 <div className="app-card-header">
                   <div>
                     <h3>{app.jobTitle}</h3>
@@ -834,6 +839,7 @@ export default function Applications() {
           ))}
         </div>
       )}
+      </div>
     </DashboardLayout>
   );
 }

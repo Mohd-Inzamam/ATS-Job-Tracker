@@ -67,7 +67,7 @@ export default function Profile() {
 
   return (
     <DashboardLayout>
-      <div className="profile-card">
+      <div className="page-enter profile-card">
         <header className="profile-header">
           <h2>Your Profile</h2>
           <p>Manage your personal and career information</p>

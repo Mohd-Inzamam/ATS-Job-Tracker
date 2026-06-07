@@ -80,7 +80,7 @@ export default function Settings() {
 
   return (
     <DashboardLayout>
-      <div className="profile-card">
+      <div className="page-enter profile-card">
         <header className="profile-header">
           <h2>Settings</h2>
           <p>Manage your account security and preferences</p>

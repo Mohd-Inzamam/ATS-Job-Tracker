@@ -58,7 +58,7 @@ export default function Match() {
   if (isFree) {
     return (
       <DashboardLayout>
-        <div className="pro-empty-state">
+        <div className="page-enter pro-empty-state">
           <span className="pro-empty-icon">🎯</span>
           <h2>Resume–JD Matching is a Pro feature</h2>
           <p>
@@ -79,6 +79,7 @@ export default function Match() {
 
   return (
     <DashboardLayout>
+      <div className="page-enter">
       <div className="page-header">
         <h2>Resume–JD Matcher</h2>
         <p>See how well your resume matches a job description</p>
@@ -193,6 +194,7 @@ export default function Match() {
           </button>
         </div>
       )}
+      </div>
     </DashboardLayout>
   );
 }

@@ -60,6 +60,28 @@ function getTopResume(resumes) {
   );
 }
 
+function AnimatedNumber({ value, duration = 800 }) {
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (value === null || value === undefined) return;
+    let start = 0;
+    const increment = value / (duration / 16);
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= value) {
+        setDisplay(value);
+        clearInterval(timer);
+      } else {
+        setDisplay(Math.floor(start));
+      }
+    }, 16);
+    return () => clearInterval(timer);
+  }, [value, duration]);
+
+  return <span className="stat-number">{display}</span>;
+}
+
 function getLastApplication(applications) {
   if (!applications?.length) return null;
   return [...applications].sort(
@@ -148,6 +170,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
+      <div className="page-enter">
       {/* Section A — Greeting */}
       <div className="dash-greeting">
         <h1>
@@ -183,9 +206,11 @@ export default function Dashboard() {
         ) : (
           <div className="dash-metric-card">
             <p className="dash-metric-label">Total Applications</p>
-            <p className="dash-metric-value">{totalApps}</p>
+            <p className="dash-metric-value">
+              <AnimatedNumber value={totalApps} />
+            </p>
             <p className="dash-metric-sub">
-              interview rate: {overview.interviewConversionRate ?? 0}%
+              interview rate: <AnimatedNumber value={overview.interviewConversionRate ?? 0} />%
             </p>
           </div>
         )}
@@ -282,6 +307,7 @@ export default function Dashboard() {
           <span className="material-symbols-outlined">fact_check</span>
           Check ATS
         </button>
+      </div>
       </div>
     </DashboardLayout>
   );
