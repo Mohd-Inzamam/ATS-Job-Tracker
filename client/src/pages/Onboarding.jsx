@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StepIndicator from "../components/StepIndicator";
 import FileUploadBox from "../components/FileUploadBox";
@@ -14,9 +14,25 @@ export default function Onboarding() {
   const [file, setFile] = useState(null);
   const [label, setLabel] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [guestATS, setGuestATS] = useState(null);
   const navigate = useNavigate();
   const { completeOnboarding } = useAuth();
   const { showToast } = useToast();
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("guestATSResult");
+    if (stored) {
+      try {
+        setGuestATS(JSON.parse(stored));
+      } catch {
+        sessionStorage.removeItem("guestATSResult");
+      }
+    }
+  }, []);
+
+  const clearGuestSession = () => {
+    sessionStorage.removeItem("guestATSResult");
+  };
 
   const handleStep1Next = async () => {
     if (!role || !experience) {
@@ -51,6 +67,7 @@ export default function Onboarding() {
     try {
       setUploading(true);
       await uploadResume(file, label);
+      clearGuestSession();
       await completeOnboarding();
       navigate("/dashboard");
     } catch (err) {
@@ -61,6 +78,7 @@ export default function Onboarding() {
   };
 
   const handleSkip = async () => {
+    clearGuestSession();
     await completeOnboarding();
     navigate("/dashboard");
   };
@@ -108,6 +126,13 @@ export default function Onboarding() {
         <div className="onboarding-step">
           <h2>Upload your first resume</h2>
           <p>You can always add more later</p>
+
+          {guestATS && (
+            <div className="guest-ats-banner">
+              ✦ We saved your ATS scan — your resume scored {guestATS.atsScore}/100.
+              Upload it here to unlock your full report.
+            </div>
+          )}
 
           <FileUploadBox onFileSelect={handleFileSelect} />
 

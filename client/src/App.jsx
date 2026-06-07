@@ -17,6 +17,7 @@ import Analytics from "./pages/Analytics";
 import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import DemoCheckout from "./pages/DemoCheckout";
 
 export default function App() {
   return (
@@ -91,6 +92,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute>
+            <DemoCheckout />
           </ProtectedRoute>
         }
       />

@@ -12,7 +12,7 @@ export default function UpgradeModal({ isOpen, onClose, message }) {
 
   const handleUpgrade = () => {
     onClose();
-    window.location.href = "/pricing";
+    window.location.href = "/checkout";
   };
 
   return (

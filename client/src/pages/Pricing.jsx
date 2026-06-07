@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import PublicNavbar from "../components/PublicNavbar";
 
 const PLANS = [
@@ -96,6 +97,36 @@ export default function Pricing() {
   const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handlePlanCta = (plan) => {
+    if (plan.id === "free") {
+      if (user) return;
+      navigate("/signup");
+      return;
+    }
+    if (plan.id === "pro") {
+      if (user) {
+        navigate("/checkout");
+      } else {
+        navigate("/signup?plan=pro");
+      }
+      return;
+    }
+    navigate(plan.ctaRoute);
+  };
+
+  const getPlanCtaLabel = (plan) => {
+    if (plan.id === "free" && user) return "Current plan";
+    if (plan.id === "pro" && user?.plan === "pro") return "Current plan";
+    return plan.cta;
+  };
+
+  const isPlanCtaDisabled = (plan) => {
+    if (plan.id === "free" && user) return true;
+    if (plan.id === "pro" && user?.plan === "pro") return true;
+    return false;
+  };
 
   return (
     <>
@@ -160,8 +191,10 @@ export default function Pricing() {
                 <button
                   type="button"
                   className={`plan-cta ${plan.highlight ? "plan-cta-primary" : "plan-cta-ghost"}`}
-                  onClick={() => navigate(plan.ctaRoute)}>
-                  {plan.cta}
+                  onClick={() => handlePlanCta(plan)}
+                  disabled={isPlanCtaDisabled(plan)}
+                >
+                  {getPlanCtaLabel(plan)}
                 </button>
 
                 <ul className="plan-features">
