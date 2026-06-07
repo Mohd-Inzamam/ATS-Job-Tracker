@@ -24,6 +24,11 @@ export default function Sidebar() {
           <span>Applications</span>
         </NavLink>
 
+        <NavLink to="/analytics" className="sidebar-nav-item">
+          <span className="material-symbols-outlined">insights</span>
+          <span>Analytics</span>
+        </NavLink>
+
         <NavLink to="/profile" className="sidebar-nav-item">
           <span className="material-symbols-outlined">person</span>
           <span>Profile</span>

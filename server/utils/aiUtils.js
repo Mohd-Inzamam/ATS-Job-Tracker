@@ -184,3 +184,50 @@ Generate exactly 6 questions: 3 Technical, 2 Behavioural, 1 Culture Fit.`
     }
 };
 
+/**
+ * Generates a brief dashboard insight for the job seeker
+ * @param {object} params
+ * @returns {Promise<string>}
+ */
+export const generateDashboardInsight = async ({
+    totalApplications,
+    interviewRate,
+    statusBreakdown,
+    resumeCount,
+    topResumeLabel
+}) => {
+    const fallback =
+        "Keep going — consistent applications compound over time. Focus on tailoring your resume for each role you apply to.";
+
+    try {
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.1-8b-instant",
+            temperature: 0.7,
+            max_tokens: 120,
+            messages: [
+                {
+                    role: "system",
+                    content:
+                        "You are a supportive career coach giving a job seeker a brief, encouraging, data-driven insight. Be specific, warm, and actionable. 2-3 sentences max. No bullet points. No JSON."
+                },
+                {
+                    role: "user",
+                    content: `The candidate has ${totalApplications} applications total.
+Status breakdown: ${JSON.stringify(statusBreakdown)}.
+Interview conversion rate: ${interviewRate}%.
+They have ${resumeCount} resume(s). Best resume: ${topResumeLabel || "not uploaded yet"}.
+Give them one specific, encouraging insight about their job search progress and one concrete next step.`
+                }
+            ]
+        });
+
+        const text = completion.choices[0]?.message?.content?.trim();
+        return text || fallback;
+    } catch (error) {
+        console.error("AI dashboard insight error (soft-fail):", error.message ?? error);
+        return fallback;
+    }
+};
+

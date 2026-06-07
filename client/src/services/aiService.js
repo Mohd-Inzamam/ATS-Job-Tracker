@@ -6,3 +6,10 @@ export const parseJD = (jobDescription) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ jobDescription }),
   });
+
+export const getDashboardInsight = (data) =>
+  apiFetch("/ai/dashboard-insight", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
