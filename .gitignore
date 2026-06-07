@@ -12,6 +12,10 @@ server/.env
 client/dist
 client/build
 
+# uploads
+client/uploads
+server/uploads
+
 # logs
 npm-debug.log*
 yarn-debug.log*
