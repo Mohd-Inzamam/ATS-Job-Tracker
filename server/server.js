@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/config.js";
 import authRoutes from "./routes/authRoutes.js"
@@ -14,17 +15,13 @@ connectDB();            // Connect to MongoDB
 
 const app = express();
 
-// CORS Middleware
-// Allow requests from any origin (for development)
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, x-refresh-token"
-    );
-    next();
-});
+app.use(cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-refresh-token"],
+    credentials: true
+}));
+// app.options("*", cors());
 
 // Middleware
 app.use(express.json());

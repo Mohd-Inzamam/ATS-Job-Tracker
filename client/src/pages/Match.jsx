@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../layout/DashboardLayout";
 import { getResumes } from "../services/resumeService";
 import { analyzeMatch } from "../services/matchService";
 
 export default function Match() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [resumes, setResumes] = useState([]);
   const [resumeId, setResumeId] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -11,11 +15,14 @@ export default function Match() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const isFree = user?.plan !== "pro";
+
   useEffect(() => {
+    if (isFree) return;
     getResumes()
       .then(setResumes)
       .catch(() => setError("Failed to load resumes"));
-  }, []);
+  }, [isFree]);
 
   const handleAnalyze = async () => {
     if (!resumeId || !jobDescription.trim()) {
@@ -42,12 +49,33 @@ export default function Match() {
     setResumeId("");
   };
 
-  // Score color based on percentage
   const getScoreColor = (score) => {
-    if (score >= 70) return "#22c55e"; // green
-    if (score >= 40) return "#f59e0b"; // amber
-    return "#ef4444"; // red
+    if (score >= 70) return "#22c55e";
+    if (score >= 40) return "#f59e0b";
+    return "#ef4444";
   };
+
+  if (isFree) {
+    return (
+      <DashboardLayout>
+        <div className="pro-empty-state">
+          <span className="pro-empty-icon">🎯</span>
+          <h2>Resume–JD Matching is a Pro feature</h2>
+          <p>
+            Upgrade to compare your resume against any job description and get
+            AI-powered gap analysis.
+          </p>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => navigate("/pricing")}
+          >
+            Upgrade to Pro
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -60,12 +88,12 @@ export default function Match() {
 
       {!result ? (
         <div className="card">
-          {/* Resume Selector */}
           <div className="form-group">
             <label>Select Resume</label>
             <select
               value={resumeId}
-              onChange={(e) => setResumeId(e.target.value)}>
+              onChange={(e) => setResumeId(e.target.value)}
+            >
               <option value="">Choose a resume...</option>
               {resumes.map((r) => (
                 <option key={r._id} value={r._id}>
@@ -75,63 +103,62 @@ export default function Match() {
             </select>
           </div>
 
-          {/* JD Input */}
           <div className="form-group">
             <label>Paste Job Description</label>
             <textarea
               rows={8}
-              placeholder="Paste the full job description here..."
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste the full job description here..."
             />
           </div>
 
           <button
             className="btn-primary"
             onClick={handleAnalyze}
-            disabled={loading}>
+            disabled={loading || !resumeId || !jobDescription.trim()}
+          >
             {loading ? "Analyzing..." : "Analyze Match"}
           </button>
         </div>
       ) : (
-        <div className="match-result">
-          {/* Score Circle */}
-          <div className="card center">
+        <div className="card">
+          <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
             <div
-              className="score-circle"
-              style={{ borderColor: getScoreColor(result.matchPercentage) }}>
-              <span
-                className="score-number"
-                style={{ color: getScoreColor(result.matchPercentage) }}>
-                {result.matchPercentage}%
-              </span>
-              <span className="score-label">Match Score</span>
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: "50%",
+                border: `4px solid ${getScoreColor(result.matchPercentage)}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 1rem",
+                fontSize: "28px",
+                fontWeight: 700,
+                color: getScoreColor(result.matchPercentage),
+              }}
+            >
+              {result.matchPercentage}%
             </div>
-
-            <p style={{ marginTop: "1rem", color: "#6b7280" }}>
-              Resume: <strong>{result.resumeLabel}</strong>
-            </p>
+            <h3>Match Score</h3>
           </div>
 
-          {/* Suggestions */}
-          {result.suggestions?.length > 0 && (
-            <div className="card" style={{ marginTop: "1rem" }}>
-              <h3>💡 Suggestions</h3>
-              <ul className="suggestion-list">
-                {result.suggestions.map((s, i) => (
-                  <li key={i}>{s}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Matched Keywords */}
           {result.matchedKeywords?.length > 0 && (
-            <div className="card" style={{ marginTop: "1rem" }}>
-              <h3>✅ Matched Keywords</h3>
-              <div className="keyword-chips">
-                {result.matchedKeywords.slice(0, 20).map((kw, i) => (
-                  <span key={i} className="chip chip-green">
+            <div style={{ marginBottom: "1rem" }}>
+              <h4>Matched Keywords</h4>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {result.matchedKeywords.map((kw) => (
+                  <span
+                    key={kw}
+                    style={{
+                      background: "#dcfce7",
+                      color: "#15803d",
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      fontSize: "12px",
+                    }}
+                  >
                     {kw}
                   </span>
                 ))}
@@ -139,13 +166,21 @@ export default function Match() {
             </div>
           )}
 
-          {/* Missing Keywords */}
           {result.missingKeywords?.length > 0 && (
-            <div className="card" style={{ marginTop: "1rem" }}>
-              <h3>❌ Missing Keywords</h3>
-              <div className="keyword-chips">
-                {result.missingKeywords.map((kw, i) => (
-                  <span key={i} className="chip chip-red">
+            <div style={{ marginBottom: "1rem" }}>
+              <h4>Missing Keywords</h4>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {result.missingKeywords.map((kw) => (
+                  <span
+                    key={kw}
+                    style={{
+                      background: "#fee2e2",
+                      color: "#dc2626",
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      fontSize: "12px",
+                    }}
+                  >
                     {kw}
                   </span>
                 ))}
@@ -153,11 +188,7 @@ export default function Match() {
             </div>
           )}
 
-          {/* Reset */}
-          <button
-            className="secondary-btn"
-            onClick={handleReset}
-            style={{ marginTop: "1.5rem" }}>
+          <button className="btn-primary" onClick={handleReset}>
             Analyze Another
           </button>
         </div>

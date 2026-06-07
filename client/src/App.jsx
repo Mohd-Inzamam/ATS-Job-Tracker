@@ -15,6 +15,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Match from "./pages/Match";
 import Analytics from "./pages/Analytics";
 import Pricing from "./pages/Pricing";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -83,7 +85,16 @@ export default function App() {
             <Analytics />
           </ProtectedRoute>
         }
-      />{" "}
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

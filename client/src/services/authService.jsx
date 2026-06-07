@@ -15,3 +15,20 @@ export const registerService = (data) =>
   });
 
 export const getUserProfileService = () => apiFetch("/auth/getProfile");
+
+export const resendVerificationEmail = (email) =>
+  apiFetch("/auth/resend-verification", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+export const changePasswordService = ({ currentPassword, newPassword }) =>
+  apiFetch("/auth/change-password", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+
+export const deleteAccountService = () =>
+  apiFetch("/auth/account", { method: "DELETE" });

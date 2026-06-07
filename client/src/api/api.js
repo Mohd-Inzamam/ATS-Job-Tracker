@@ -48,6 +48,17 @@ export async function apiFetch(endpoint, options = {}) {
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
+
+        if (res.status === 403 && errorData.limitReached) {
+            window.dispatchEvent(new CustomEvent("upgradeRequired", {
+                detail: {
+                    feature: errorData.feature,
+                    message: errorData.message
+                }
+            }));
+            throw new Error(errorData.message);
+        }
+
         throw new Error(errorData.message || "API Error");
     }
 

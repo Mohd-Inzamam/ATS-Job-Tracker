@@ -66,6 +66,32 @@ const userSchema = new mongoose.Schema(
         onboardingComplete: {
             type: Boolean,
             default: false
+        },
+
+        plan: {
+            type: String,
+            enum: ["free", "pro"],
+            default: "free"
+        },
+
+        planActivatedAt: {
+            type: Date,
+            default: null
+        },
+
+        planExpiresAt: {
+            type: Date,
+            default: null
+        },
+
+        stripeCustomerId: {
+            type: String,
+            default: null
+        },
+
+        stripeSubscriptionId: {
+            type: String,
+            default: null
         }
     },
     { timestamps: true }

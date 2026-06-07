@@ -1,6 +1,9 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar() {
+  const { user } = useAuth();
+
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -24,6 +27,11 @@ export default function Sidebar() {
           <span>Applications</span>
         </NavLink>
 
+        <NavLink to="/match" className="sidebar-nav-item">
+          <span className="material-symbols-outlined">compare_arrows</span>
+          <span>Match</span>
+        </NavLink>
+
         <NavLink to="/analytics" className="sidebar-nav-item">
           <span className="material-symbols-outlined">insights</span>
           <span>Analytics</span>
@@ -33,7 +41,28 @@ export default function Sidebar() {
           <span className="material-symbols-outlined">person</span>
           <span>Profile</span>
         </NavLink>
+
+        <NavLink to="/settings" className="sidebar-nav-item">
+          <span className="material-symbols-outlined">settings</span>
+          <span>Settings</span>
+        </NavLink>
       </nav>
+
+      <div className="sidebar-footer">
+        <div className="sidebar-avatar">
+          {user?.name?.charAt(0).toUpperCase() || "U"}
+        </div>
+        <div className="sidebar-user-info">
+          <span className="sidebar-user-name">{user?.name || "User"}</span>
+          <span className="sidebar-user-email">{user?.email || ""}</span>
+          <span
+            className={`plan-badge plan-badge-${user?.plan || "free"}`}
+            style={{ fontSize: "10px", padding: "1px 6px", marginTop: "2px" }}
+          >
+            {user?.plan === "pro" ? "⭐ Pro" : "Free"}
+          </span>
+        </div>
+      </div>
     </aside>
   );
 }

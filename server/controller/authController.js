@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import Resume from "../models/Resume.js";
+import JobApplication from "../models/JobApplication.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/sendMail.js";
@@ -126,7 +128,8 @@ export const loginUser = async (req, res) => {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
-                    onboardingComplete: user.onboardingComplete
+                    onboardingComplete: user.onboardingComplete,
+                    plan: user.plan
                 },
                 token: generateToken(user._id),
                 refreshToken
@@ -147,7 +150,8 @@ export const getUserProfile = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            onboardingComplete: user.onboardingComplete
+            onboardingComplete: user.onboardingComplete,
+            plan: user.plan
         });
     } else {
         res.status(404).json({ message: "User not found" });
@@ -275,5 +279,78 @@ export const markOnboardingComplete = async (req, res) => {
     } catch (error) {
         console.error("Error marking onboarding complete:", error);
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const resendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ message: "Email already verified" });
+        }
+
+        const rawToken = generateVerificationToken();
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(rawToken)
+            .digest("hex");
+
+        user.verificationToken = hashedToken;
+        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
+        await user.save();
+
+        await sendVerificationEmail(user.email, rawToken);
+
+        res.status(200).json({ message: "Verification email resent" });
+    } catch (error) {
+        console.error("Error resending verification email:", error);
+        res.status(500).json({ message: "Failed to resend verification email" });
+    }
+};
+
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        const user = await User.findById(req.user._id).select("+password");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+
+        if (!newPassword || newPassword.length < 8) {
+            return res.status(400).json({ message: "Password must be at least 8 characters" });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ message: "Failed to change password" });
+    }
+};
+
+export const deleteAccount = async (req, res) => {
+    try {
+        await Resume.deleteMany({ user: req.user._id });
+        await JobApplication.deleteMany({ user: req.user._id });
+        await User.findByIdAndDelete(req.user._id);
+
+        res.status(200).json({ message: "Account deleted" });
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        res.status(500).json({ message: "Failed to delete account" });
     }
 };

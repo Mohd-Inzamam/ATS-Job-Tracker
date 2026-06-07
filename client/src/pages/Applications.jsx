@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../layout/DashboardLayout";
 import PipelineStatus from "../components/PipelineStatus";
 import {
@@ -26,6 +28,8 @@ const getDaysSince = (dateStr) => {
 };
 
 export default function Applications() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -231,6 +235,10 @@ export default function Applications() {
     }
   };
 
+  const isFree = user?.plan !== "pro";
+  const atAppLimit = isFree && applications.length >= 5;
+  const atAppWarning = isFree && applications.length >= 3 && applications.length < 5;
+
   if (loading)
     return (
       <DashboardLayout>
@@ -244,16 +252,46 @@ export default function Applications() {
         <h2>Applications</h2>
         <button
           className="btn-primary"
+          disabled={atAppLimit}
+          title={atAppLimit ? "Upgrade to add more applications" : ""}
           onClick={() => {
+            if (atAppLimit) return;
             if (showForm) {
               handleCancel();
             } else {
               setShowForm(true);
             }
-          }}>
+          }}
+        >
           {showForm ? "Cancel" : "+ Add Application"}
         </button>
       </div>
+
+      {atAppLimit && (
+        <div className="usage-banner usage-banner-warning">
+          ✦ You've reached the 5 application limit on the free plan.{" "}
+          <button
+            type="button"
+            className="usage-banner-link"
+            onClick={() => navigate("/pricing")}
+          >
+            Upgrade to Pro for unlimited →
+          </button>
+        </div>
+      )}
+
+      {atAppWarning && (
+        <div className="usage-banner usage-banner-info">
+          ✦ {applications.length}/5 applications used. Running low?{" "}
+          <button
+            type="button"
+            className="usage-banner-link usage-banner-link-info"
+            onClick={() => navigate("/pricing")}
+          >
+            Upgrade for unlimited →
+          </button>
+        </div>
+      )}
 
       {error && <div className="error-banner">{error}</div>}
 

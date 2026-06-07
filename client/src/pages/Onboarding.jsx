@@ -5,6 +5,7 @@ import FileUploadBox from "../components/FileUploadBox";
 import { updateProfile } from "../services/profileService";
 import { uploadResume } from "../services/resumeService";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
@@ -13,25 +14,24 @@ export default function Onboarding() {
   const [file, setFile] = useState(null);
   const [label, setLabel] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { completeOnboarding } = useAuth();
+  const { showToast } = useToast();
 
   const handleStep1Next = async () => {
     if (!role || !experience) {
-      setError("Please fill in all fields");
+      showToast("Please fill in all fields", "error");
       return;
     }
 
     try {
-      setError("");
       await updateProfile({
         targetRoles: [role],
         yearsOfExperience: experience,
       });
       setStep(2);
     } catch (err) {
-      setError(err.message || "Failed to save profile");
+      showToast(err.message || "Failed to save profile", "error");
     }
   };
 
@@ -44,18 +44,17 @@ export default function Onboarding() {
 
   const handleFinish = async () => {
     if (!file || !label) {
-      setError("Please select a resume to upload");
+      showToast("Please select a resume to upload", "error");
       return;
     }
 
     try {
-      setError("");
       setUploading(true);
       await uploadResume(file, label);
       await completeOnboarding();
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Failed to upload resume");
+      showToast(err.message || "Failed to upload resume", "error");
     } finally {
       setUploading(false);
     }
@@ -69,8 +68,6 @@ export default function Onboarding() {
   return (
     <div className="container">
       <StepIndicator step={step} total={2} />
-
-      {error && <div className="error-banner">{error}</div>}
 
       {step === 1 && (
         <div className="onboarding-step">
@@ -91,7 +88,8 @@ export default function Onboarding() {
             <label>Years of Experience</label>
             <select
               value={experience}
-              onChange={(e) => setExperience(e.target.value)}>
+              onChange={(e) => setExperience(e.target.value)}
+            >
               <option value="">Select</option>
               <option value="0-1">0–1 years</option>
               <option value="1-3">1–3 years</option>
@@ -129,7 +127,8 @@ export default function Onboarding() {
             <button
               className="btn-primary"
               onClick={handleFinish}
-              disabled={!file || uploading}>
+              disabled={!file || uploading}
+            >
               {uploading ? "Uploading..." : "Finish Setup"}
             </button>
 

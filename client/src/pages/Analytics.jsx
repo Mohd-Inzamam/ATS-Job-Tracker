@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../layout/DashboardLayout";
 import {
   getOverview,
@@ -35,12 +37,18 @@ function getRatePillClass(rate) {
 }
 
 export default function Analytics() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [overview, setOverview] = useState(null);
   const [trends, setTrends] = useState(null);
   const [successRate, setSuccessRate] = useState(null);
   const [activeTab, setActiveTab] = useState("role");
 
+  const isFree = user?.plan !== "pro";
+
   useEffect(() => {
+    if (isFree) return;
+
     Promise.all([getOverview(), getTrends(), getSuccessRate()])
       .then(([ov, tr, sr]) => {
         setOverview(ov);
@@ -52,7 +60,34 @@ export default function Analytics() {
         setTrends([]);
         setSuccessRate({ byRole: [], byCompany: [] });
       });
-  }, []);
+  }, [isFree]);
+
+  if (isFree) {
+    return (
+      <DashboardLayout>
+        <div className="analytics-page">
+          <div className="usage-banner usage-banner-info" style={{ marginBottom: "1.5rem" }}>
+            Analytics is a Pro feature.
+          </div>
+          <div className="pro-empty-state">
+            <span className="pro-empty-icon">📊</span>
+            <h2>Analytics is a Pro feature</h2>
+            <p>
+              Upgrade to see your application trends, interview rates, and resume
+              performance.
+            </p>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => navigate("/pricing")}
+            >
+              Upgrade to Pro
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const breakdown = normalizeBreakdown(overview?.statusBreakdown);
   const total = overview?.totalApplications ?? 0;
@@ -88,7 +123,6 @@ export default function Analytics() {
           <p>Your job search story, told in data</p>
         </div>
 
-        {/* Act 1 — Your Search in Numbers */}
         <section className="analytics-section">
           <h3 className="analytics-act-title">Your Search in Numbers</h3>
           <div className="analytics-stat-row">
@@ -125,7 +159,6 @@ export default function Analytics() {
           </div>
         </section>
 
-        {/* Act 2 — Status breakdown */}
         <section className="analytics-section">
           <h3 className="analytics-act-title">Where Are Your Applications?</h3>
           {overview === null ? (
@@ -170,7 +203,6 @@ export default function Analytics() {
           )}
         </section>
 
-        {/* Act 3 — Weekly trends */}
         <section className="analytics-section">
           <h3 className="analytics-act-title">Application Trends</h3>
           {trends === null ? (
@@ -197,7 +229,6 @@ export default function Analytics() {
           )}
         </section>
 
-        {/* Act 4 — Success rate table */}
         <section className="analytics-section">
           <h3 className="analytics-act-title">Success Rate by Role</h3>
           <div className="analytics-tabs">

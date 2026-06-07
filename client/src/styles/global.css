@@ -39,6 +39,9 @@
     --color-text-danger: #dc2626;
     --color-background-warning: #fef3c7;
     --color-border-warning: #fbbf24;
+    --color-background-danger: #fee2e2;
+    --color-border-danger: #fecaca;
+    --color-background-primary: #ffffff;
 }
 
 
@@ -497,6 +500,51 @@ input:disabled {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    flex: 1;
+}
+
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 1rem;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    margin-top: auto;
+}
+
+.sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-background-info);
+    color: var(--color-text-info);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.sidebar-user-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #f3f4f6;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+}
+
+.sidebar-user-email {
+    font-size: 11px;
+    color: #9ca3af;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
 }
 
 /* Nav Item */
@@ -2811,4 +2859,345 @@ input:disabled {
 
 .trust-icon {
     font-size: 15px;
+}
+
+/* ============================= */
+/* TOAST NOTIFICATIONS */
+/* ============================= */
+
+.toast-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    min-width: 280px;
+    max-width: 380px;
+    border-radius: var(--border-radius-md);
+    padding: 12px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.2s ease;
+    box-shadow: var(--shadow-medium);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.toast-close {
+    font-size: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+.toast-success {
+    background: var(--color-background-success);
+    color: var(--color-text-success);
+    border-left: 3px solid var(--color-text-success);
+}
+
+.toast-error {
+    background: var(--color-background-danger);
+    color: var(--color-text-danger);
+    border-left: 3px solid var(--color-text-danger);
+}
+
+.toast-info {
+    background: var(--color-background-info);
+    color: var(--color-text-info);
+    border-left: 3px solid var(--color-text-info);
+}
+
+.toast-warning {
+    background: var(--color-background-warning);
+    color: var(--color-text-warning);
+    border-left: 3px solid var(--color-text-warning);
+}
+
+/* ============================= */
+/* 404 PAGE */
+/* ============================= */
+
+.not-found-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.not-found-code {
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    margin: 0 0 8px;
+    line-height: 1;
+}
+
+.not-found-page h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 12px;
+}
+
+.not-found-subtitle {
+    font-size: 15px;
+    color: var(--color-text-secondary);
+    margin: 0 0 28px;
+    max-width: 400px;
+}
+
+.not-found-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ============================= */
+/* SETTINGS DANGER ZONE */
+/* ============================= */
+
+.danger-zone {
+    background: var(--color-background-danger);
+    border: 0.5px solid var(--color-border-danger);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.danger-zone-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-danger);
+    margin: 0 0 8px;
+}
+
+.danger-zone-body {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin: 0 0 14px;
+}
+
+.btn-ghost-danger {
+    border-color: var(--color-text-danger);
+    color: var(--color-text-danger);
+}
+
+.btn-ghost-danger:hover {
+    background: var(--color-background-danger);
+    border-color: var(--color-text-danger);
+    color: var(--color-text-danger);
+}
+
+/* ============================= */
+/* PLAN BADGES */
+/* ============================= */
+
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.plan-badge-free {
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-secondary);
+}
+
+.plan-badge-pro {
+    background: var(--color-background-warning);
+    color: var(--color-text-warning);
+    border: 0.5px solid var(--color-border-warning);
+}
+
+/* ============================= */
+/* USAGE LIMIT BANNERS */
+/* ============================= */
+
+.usage-banner {
+    border-radius: var(--border-radius-md);
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 1rem;
+}
+
+.usage-banner-warning {
+    background: var(--color-background-warning);
+    color: var(--color-text-warning);
+    border-left: 3px solid var(--color-border-warning);
+}
+
+.usage-banner-info {
+    background: var(--color-background-info);
+    color: var(--color-text-info);
+    border-left: 3px solid var(--color-border-info);
+}
+
+.usage-banner-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.usage-banner-link-info {
+    color: var(--color-text-info);
+}
+
+/* ============================= */
+/* PRO EMPTY STATE */
+/* ============================= */
+
+.pro-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    min-height: 400px;
+}
+
+.pro-empty-icon {
+    font-size: 48px;
+    margin-bottom: 1rem;
+}
+
+.pro-empty-state h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+}
+
+.pro-empty-state p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    max-width: 400px;
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+}
+
+/* ============================= */
+/* UPGRADE MODAL */
+/* ============================= */
+
+.upgrade-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.upgrade-modal-card {
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.upgrade-modal-icon {
+    font-size: 32px;
+    text-align: center;
+    margin: 0 0 0.5rem;
+}
+
+.upgrade-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0;
+}
+
+.upgrade-modal-message {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin: 0.75rem 0 1.25rem;
+    line-height: 1.5;
+}
+
+.upgrade-modal-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+}
+
+.upgrade-modal-feature {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.upgrade-modal-check {
+    color: var(--color-text-success);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.upgrade-modal-price {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+}
+
+.upgrade-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
 }

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../layout/DashboardLayout";
 import ResumeCard from "../components/ResumeCard";
 import FileUploadBox from "../components/FileUploadBox";
@@ -9,11 +11,16 @@ import {
 } from "../services/resumeService";
 
 export default function ResumeList() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [resumes, setResumes] = useState([]);
   const [file, setFile] = useState(null);
   const [label, setLabel] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+
+  const isFree = user?.plan !== "pro";
+  const atResumeLimit = isFree && resumes.length >= 1;
 
   useEffect(() => {
     getResumes()
@@ -22,6 +29,7 @@ export default function ResumeList() {
   }, []);
 
   const handleFileSelect = (selectedFile) => {
+    if (atResumeLimit) return;
     setFile(selectedFile);
     if (selectedFile) {
       setLabel(selectedFile.name.split(".")[0]);
@@ -29,6 +37,7 @@ export default function ResumeList() {
   };
 
   const handleUpload = async () => {
+    if (atResumeLimit) return;
     if (!file || !label) {
       setError("File and label are required");
       return;
@@ -37,10 +46,7 @@ export default function ResumeList() {
     try {
       setError("");
       setUploading(true);
-
-      // Server handles ATS scoring during upload — response includes atsScore & atsSuggestions
       const newResume = await uploadResume(file, label);
-
       setResumes((prev) => [newResume, ...prev]);
       setFile(null);
       setLabel("");
@@ -70,10 +76,23 @@ export default function ResumeList() {
 
       {error && <div className="error-banner">{error}</div>}
 
+      {atResumeLimit && (
+        <div className="usage-banner usage-banner-warning">
+          ✦ You're using 1/1 free resume slot.{" "}
+          <button
+            type="button"
+            className="usage-banner-link"
+            onClick={() => navigate("/pricing")}
+          >
+            Upgrade to Pro for unlimited →
+          </button>
+        </div>
+      )}
+
       <div className="upload-section">
         <FileUploadBox onFileSelect={handleFileSelect} />
 
-        {file && (
+        {file && !atResumeLimit && (
           <div className="form-group" style={{ marginTop: "1rem" }}>
             <label>Resume Label</label>
             <input
@@ -85,12 +104,15 @@ export default function ResumeList() {
           </div>
         )}
 
-        <button
-          className="btn-primary"
-          onClick={handleUpload}
-          disabled={!file || uploading}>
-          {uploading ? "Uploading..." : "Upload Resume"}
-        </button>
+        <div className="upload-btn-wrap" title={atResumeLimit ? "Upgrade to add more resumes" : ""}>
+          <button
+            className="btn-primary"
+            onClick={handleUpload}
+            disabled={!file || uploading || atResumeLimit}
+          >
+            {uploading ? "Uploading..." : "Upload Resume"}
+          </button>
+        </div>
       </div>
 
       {resumes.length === 0 ? (

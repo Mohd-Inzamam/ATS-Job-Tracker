@@ -6,6 +6,7 @@ import {
     getSuccessRate
 } from "../controller/analyticsController.js";
 import protect from "../middleware/authMiddleware.js";
+import { checkAnalyticsAccess } from "../middleware/planMiddleware.js";
 
 const router = express.Router();
 
@@ -14,9 +15,9 @@ const router = express.Router();
 // POST /api/analytics/resume-performance → compare all resumes against a JD
 // GET  /api/analytics/success-rate      → interview/offer rate by role and company
 
-router.get("/overview", protect, getOverview);
-router.get("/trends", protect, getApplicationTrends);
-router.post("/resume-performance", protect, getResumePerformance);
-router.get("/success-rate", protect, getSuccessRate);
+router.get("/overview", protect, checkAnalyticsAccess, getOverview);
+router.get("/trends", protect, checkAnalyticsAccess, getApplicationTrends);
+router.post("/resume-performance", protect, checkAnalyticsAccess, getResumePerformance);
+router.get("/success-rate", protect, checkAnalyticsAccess, getSuccessRate);
 
 export default router;
