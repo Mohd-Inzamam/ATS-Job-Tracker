@@ -6,6 +6,8 @@ import { useAuth } from "../context/AuthContext";
 import DashboardLayout from "../layout/DashboardLayout";
 import EmptyState from "../components/EmptyState";
 import PipelineStatus from "../components/PipelineStatus";
+import CoachMark from "../components/CoachMark";
+import ReactConfetti from "react-confetti";
 import {
   getApplications,
   createApplication,
@@ -59,6 +61,14 @@ export default function Applications() {
   // Interview Prep State
   const [prepCard, setPrepCard] = useState(null);
   const [prepFilter, setPrepFilter] = useState("All");
+
+  // Offer celebration confetti
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Coach mark: show after first app is added
+  const [firstAppAdded, setFirstAppAdded] = useState(
+    () => localStorage.getItem("coach_first_app_added") === "dismissed",
+  );
 
   useEffect(() => {
     setPrepFilter("All");
@@ -188,6 +198,7 @@ export default function Applications() {
       // cleared
       const newApp = await createApplication(form);
       setApplications((prev) => [newApp, ...prev]);
+      setFirstAppAdded(true);
       setForm({
         companyName: "",
         jobTitle: "",
@@ -222,6 +233,10 @@ export default function Applications() {
       setApplications((prev) =>
         prev.map((a) => (a._id === updated._id ? updated : a)),
       );
+      if (status === "Offer") {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
+      }
       if (
         status === "Interview" &&
         updated.interviewPrep?.questions?.length > 0
@@ -261,23 +276,44 @@ export default function Applications() {
 
   return (
     <DashboardLayout>
+      {/* Offer celebration confetti */}
+      {showConfetti && (
+        <ReactConfetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
+          numberOfPieces={350}
+          style={{ position: "fixed", top: 0, left: 0, zIndex: 9999 }}
+        />
+      )}
       <div className="page-enter">
         <div className="page-header">
           <h2>Applications</h2>
-          <button
-            className="btn-primary"
-            disabled={atAppLimit}
-            title={atAppLimit ? "Upgrade to add more applications" : ""}
-            onClick={() => {
-              if (atAppLimit) return;
-              if (showForm) {
-                handleCancel();
-              } else {
-                setShowForm(true);
-              }
-            }}>
-            {showForm ? "Cancel" : "+ Add Application"}
-          </button>
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <button
+              className="btn-primary"
+              disabled={atAppLimit}
+              title={atAppLimit ? "Upgrade to add more applications" : ""}
+              onClick={() => {
+                if (atAppLimit) return;
+                if (showForm) {
+                  handleCancel();
+                } else {
+                  setShowForm(true);
+                }
+              }}>
+              {showForm ? "Cancel" : "+ Add Application"}
+            </button>
+            {/* Coach mark: after first app, point at the match score */}
+            <CoachMark
+              id="first_app_added"
+              title="Check your match score"
+              body="Click 'See AI Advice' on your new card to get specific resume fixes for this role."
+              show={firstAppAdded && applications.length === 1}
+              position="bottom"
+              delay={1500}
+            />
+          </div>
         </div>
 
         {atAppLimit && (
@@ -793,6 +829,21 @@ export default function Applications() {
                             }}>
                             · {app.companyName}
                           </span>
+                        </div>
+                        {/* Coach mark: point at interview prep when it first opens */}
+                        <div
+                          style={{
+                            position: "relative",
+                            display: "inline-block",
+                          }}>
+                          <CoachMark
+                            id="interview_prep_opened"
+                            title="Prep for your interview"
+                            body="Review these 6 tailored questions before your call. Filter by Technical, Behavioural, or Culture Fit."
+                            show={prepCard === app._id}
+                            position="bottom"
+                            delay={600}
+                          />
                         </div>
                         <button
                           onClick={() => setPrepCard(null)}
