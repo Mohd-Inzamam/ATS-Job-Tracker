@@ -8,6 +8,9 @@
 
 ATS Job Tracker is a full-stack AI-powered career management platform that helps job seekers optimize resumes, improve ATS compatibility, match resumes with job descriptions, track applications, prepare for interviews, and analyze job search performance.
 
+![ATScheckerPublic](/client/src/assets/screenshots/ATScheckerPublic.png)
+![ATSResultPublic](/client/src/assets/screenshots/ATSResultPublic.png)
+
 ## Live Demo
 
 https://ats-job-tracker.vercel.app/
