@@ -1,8 +1,14 @@
-![React](https://img.shields.io/badge/React-19-blue)
-![Node.js](https://img.shields.io/badge/Node.js-Backend-green)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-green)
-![JWT](https://img.shields.io/badge/Auth-JWT-orange)
-![Groq](https://img.shields.io/badge/AI-Groq-purple)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-Frontend-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-Backend-3C873A?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-REST_API-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-00ED64?style=for-the-badge&logo=mongodb&logoColor=black)
+![JWT](https://img.shields.io/badge/Auth-JWT-FB015B?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Groq](https://img.shields.io/badge/AI-Groq_API-F55036?style=for-the-badge&logo=groq&logoColor=white)
+![Recharts](https://img.shields.io/badge/Charts-Recharts-22B5BF?style=for-the-badge)
+![Nodemailer](https://img.shields.io/badge/Email-Nodemailer-0F9DCE?style=for-the-badge)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+[![Live Demo](https://img.shields.io/badge/🔴_Live-Demo-00C853?style=for-the-badge)](https://ats-job-tracker.vercel.app/)
 
 # ATS Job Tracker
 
