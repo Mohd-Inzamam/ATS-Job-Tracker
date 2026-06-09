@@ -30,9 +30,7 @@ export default function Match() {
       showToast("Please select a resume and paste a job description", "error");
       return;
     }
-
     try {
-      // cleared
       setResult(null);
       setLoading(true);
       const data = await analyzeMatch(resumeId, jobDescription);
@@ -50,28 +48,56 @@ export default function Match() {
     setResumeId("");
   };
 
-  const getScoreColor = (score) => {
-    if (score >= 70) return "#22c55e";
-    if (score >= 40) return "#f59e0b";
-    return "#ef4444";
-  };
+  const getScoreColor = (s) =>
+    s >= 70 ? "#16a34a" : s >= 40 ? "#d97706" : "#ef4444";
+  const getScoreBg = (s) =>
+    s >= 70 ? "#dcfce7" : s >= 40 ? "#fef9c3" : "#fee2e2";
+  const getScoreLabel = (s) =>
+    s >= 70 ? "Strong Match" : s >= 40 ? "Partial Match" : "Low Match";
 
+  /* ── Pro gate ── */
   if (isFree) {
     return (
       <DashboardLayout>
-        <div className="page-enter pro-empty-state">
-          <span className="pro-empty-icon">🎯</span>
-          <h2>Resume–JD Matching is a Pro feature</h2>
-          <p>
-            Upgrade to compare your resume against any job description and get
-            AI-powered gap analysis.
-          </p>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => navigate("/pricing")}>
-            Upgrade to Pro
-          </button>
+        <div className="page-enter pro-gate-page">
+          <div className="pro-gate-card">
+            <div className="pro-gate-icon">🎯</div>
+            <h2>Resume–JD Matching</h2>
+            <p>
+              Compare your resume against any job description. See matched
+              keywords, missing skills, and get AI-powered suggestions to close
+              the gap.
+            </p>
+            <div className="pro-gate-features">
+              {[
+                "Match percentage score",
+                "Matched & missing keyword breakdown",
+                "Role-specific suggestions",
+                "Unlimited analyses",
+              ].map((f) => (
+                <div key={f} className="pro-gate-feature">
+                  <span style={{ color: "#16a34a", fontWeight: 700 }}>✓</span>{" "}
+                  {f}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ width: "100%" }}
+              onClick={() => navigate("/pricing")}>
+              Upgrade to Pro →
+            </button>
+            <p
+              style={{
+                fontSize: "12px",
+                color: "var(--color-text-tertiary)",
+                textAlign: "center",
+                marginTop: "8px",
+              }}>
+              7-day free trial · Cancel anytime
+            </p>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -86,104 +112,187 @@ export default function Match() {
         </div>
 
         {!result ? (
-          <div className="card">
-            <div className="form-group">
-              <label>Select Resume</label>
-              <select
-                value={resumeId}
-                onChange={(e) => setResumeId(e.target.value)}>
-                <option value="">Choose a resume...</option>
-                {resumes.map((r) => (
-                  <option key={r._id} value={r._id}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+          <div className="match-form-card">
+            {/* Resume select */}
+            <div className="field-group">
+              <label className="field-label">
+                <span className="material-symbols-outlined field-label-icon">
+                  description
+                </span>
+                Select Resume
+              </label>
+              <div className="modern-select-wrap">
+                <select
+                  className="modern-select"
+                  value={resumeId}
+                  onChange={(e) => setResumeId(e.target.value)}>
+                  <option value="">Choose a resume…</option>
+                  {resumes.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined modern-select-arrow">
+                  expand_more
+                </span>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Paste Job Description</label>
-              <textarea
-                rows={8}
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                placeholder="Paste the full job description here..."
-              />
+            {/* JD textarea */}
+            <div className="field-group">
+              <label className="field-label">
+                <span className="material-symbols-outlined field-label-icon">
+                  work
+                </span>
+                Job Description
+              </label>
+              <div className="modern-textarea-wrap">
+                <textarea
+                  className="modern-textarea"
+                  rows={10}
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  placeholder="Paste the full job description here. The more complete it is, the better the analysis."
+                />
+                {jobDescription.length > 0 && (
+                  <span className="textarea-char-count">
+                    {jobDescription.length} chars
+                  </span>
+                )}
+              </div>
+              <p className="field-hint">
+                Tip: Include the full JD — requirements, responsibilities, and
+                qualifications.
+              </p>
             </div>
 
             <button
               className="btn-primary"
               onClick={handleAnalyze}
-              disabled={loading || !resumeId || !jobDescription.trim()}>
-              {loading ? "Analyzing..." : "Analyze Match"}
+              disabled={loading || !resumeId || !jobDescription.trim()}
+              style={{ width: "100%" }}>
+              {loading ? (
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    justifyContent: "center",
+                  }}>
+                  <span
+                    className="parse-spinner"
+                    style={{ width: "16px", height: "16px" }}
+                  />
+                  Analyzing match…
+                </span>
+              ) : (
+                "Analyze Match →"
+              )}
             </button>
           </div>
         ) : (
-          <div className="card">
-            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+          <div className="match-result-wrap">
+            {/* Score hero */}
+            <div
+              className="match-score-hero"
+              style={{ background: getScoreBg(result.matchPercentage) }}>
               <div
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: "50%",
-                  border: `4px solid ${getScoreColor(result.matchPercentage)}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  margin: "0 auto 1rem",
-                  fontSize: "28px",
-                  fontWeight: 700,
-                  color: getScoreColor(result.matchPercentage),
-                }}>
-                {result.matchPercentage}%
+                className="match-score-circle"
+                style={{ borderColor: getScoreColor(result.matchPercentage) }}>
+                <span
+                  className="match-score-num"
+                  style={{ color: getScoreColor(result.matchPercentage) }}>
+                  {result.matchPercentage}%
+                </span>
+                <span className="match-score-sub">match</span>
               </div>
-              <h3>Match Score</h3>
+              <div className="match-score-meta">
+                <p
+                  className="match-score-label"
+                  style={{ color: getScoreColor(result.matchPercentage) }}>
+                  {getScoreLabel(result.matchPercentage)}
+                </p>
+                <p className="match-score-desc">
+                  {result.matchPercentage >= 70
+                    ? "Your resume is well-aligned with this role."
+                    : result.matchPercentage >= 40
+                      ? "Good start — a few targeted edits could significantly improve this."
+                      : "There are significant gaps. Consider tailoring your resume for this role."}
+                </p>
+              </div>
             </div>
 
-            {result.matchedKeywords?.length > 0 && (
-              <div style={{ marginBottom: "1rem" }}>
-                <h4>Matched Keywords</h4>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {result.matchedKeywords.map((kw) => (
+            {/* Keywords */}
+            <div className="match-keywords-grid">
+              {result.matchedKeywords?.length > 0 && (
+                <div className="match-kw-section">
+                  <p className="match-kw-title match-kw-title-green">
                     <span
-                      key={kw}
-                      style={{
-                        background: "#dcfce7",
-                        color: "#15803d",
-                        padding: "4px 10px",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                      }}>
-                      {kw}
+                      className="material-symbols-outlined"
+                      style={{ fontSize: "16px" }}>
+                      check_circle
                     </span>
+                    Matched Keywords ({result.matchedKeywords.length})
+                  </p>
+                  <div className="match-kw-pills">
+                    {result.matchedKeywords.map((kw) => (
+                      <span key={kw} className="kw-pill kw-pill-green">
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {result.missingKeywords?.length > 0 && (
+                <div className="match-kw-section">
+                  <p className="match-kw-title match-kw-title-red">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: "16px" }}>
+                      cancel
+                    </span>
+                    Missing Keywords ({result.missingKeywords.length})
+                  </p>
+                  <div className="match-kw-pills">
+                    {result.missingKeywords.map((kw) => (
+                      <span key={kw} className="kw-pill kw-pill-red">
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Suggestions */}
+            {result.suggestions?.length > 0 && (
+              <div className="match-suggestions">
+                <p className="match-suggestions-title">
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontSize: "16px" }}>
+                    lightbulb
+                  </span>
+                  AI Suggestions
+                </p>
+                <div className="match-suggestion-list">
+                  {result.suggestions.map((s, i) => (
+                    <div key={i} className="match-suggestion-item">
+                      <span className="match-suggestion-num">{i + 1}</span>
+                      <p>{s}</p>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {result.missingKeywords?.length > 0 && (
-              <div style={{ marginBottom: "1rem" }}>
-                <h4>Missing Keywords</h4>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {result.missingKeywords.map((kw) => (
-                    <span
-                      key={kw}
-                      style={{
-                        background: "#fee2e2",
-                        color: "#dc2626",
-                        padding: "4px 10px",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                      }}>
-                      {kw}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <button className="btn-primary" onClick={handleReset}>
-              Analyze Another
+            <button
+              className="btn-primary"
+              onClick={handleReset}
+              style={{ width: "100%" }}>
+              ← Analyze Another
             </button>
           </div>
         )}

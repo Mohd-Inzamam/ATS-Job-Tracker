@@ -355,22 +355,38 @@ export default function Applications() {
 
         {/* Add Application Form */}
         {showForm && (
-          <div className="card" style={{ marginTop: "1.5rem" }}>
-            <h3>New Application</h3>
+          <div
+            className="card add-app-form-card"
+            style={{ marginTop: "1.5rem" }}>
+            <h3 className="add-app-form-title">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "20px", color: "var(--primary)" }}>
+                add_circle
+              </span>
+              New Application
+            </h3>
 
             {/* Job Description — first so AI can pre-fill the fields below */}
-            <div className="form-group" style={{ marginTop: "1rem" }}>
-              <label>Job Description</label>
-              <textarea
-                rows={5}
-                placeholder="Paste the job description here… AI will auto-fill Company & Title on blur"
-                value={form.jobDescription}
-                onChange={(e) =>
-                  setForm({ ...form, jobDescription: e.target.value })
-                }
-                onBlur={handleJDBlur}
-                style={{ width: "100%", resize: "vertical" }}
-              />
+            <div className="field-group" style={{ marginTop: "1rem" }}>
+              <label className="field-label">
+                <span className="material-symbols-outlined field-label-icon">
+                  work
+                </span>
+                Job Description
+              </label>
+              <div className="modern-textarea-wrap">
+                <textarea
+                  className="modern-textarea"
+                  rows={5}
+                  placeholder="Paste the job description here… AI will auto-fill Company &amp; Title on blur"
+                  value={form.jobDescription}
+                  onChange={(e) =>
+                    setForm({ ...form, jobDescription: e.target.value })
+                  }
+                  onBlur={handleJDBlur}
+                />
+              </div>
 
               {/* Parsing spinner */}
               {parsing && (
@@ -452,60 +468,70 @@ export default function Applications() {
               )}
             </div>
 
-            <div className="form-group">
-              <label>Company Name</label>
+            <div className="field-group">
+              <label className="field-label">
+                <span className="material-symbols-outlined field-label-icon">
+                  business
+                </span>
+                Company Name
+              </label>
               <input
                 type="text"
+                className={`modern-input ${flashFields.companyName ? "ai-filled" : ""}`}
                 placeholder="e.g. Google"
                 value={form.companyName}
-                className={flashFields.companyName ? "ai-filled" : ""}
                 onChange={(e) =>
                   setForm({ ...form, companyName: e.target.value })
                 }
               />
             </div>
 
-            <div className="form-group">
-              <label>
-                Job Title{" "}
+            <div className="field-group">
+              <label className="field-label">
+                <span className="material-symbols-outlined field-label-icon">
+                  badge
+                </span>
+                Job Title
                 {detectedSeniority && (
-                  <span
-                    style={{
-                      background: "#eff6ff",
-                      color: "#1d4ed8",
-                      borderRadius: "20px",
-                      padding: "2px 8px",
-                      fontSize: "11px",
-                      fontWeight: 500,
-                      marginLeft: "6px",
-                    }}>
+                  <span className="detected-seniority-badge">
                     {detectedSeniority}
                   </span>
                 )}
               </label>
               <input
                 type="text"
+                className={`modern-input ${flashFields.jobTitle ? "ai-filled" : ""}`}
                 placeholder="e.g. Frontend Developer"
                 value={form.jobTitle}
-                className={flashFields.jobTitle ? "ai-filled" : ""}
                 onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
               />
             </div>
 
-            <div className="form-group">
-              <label>Resume Used</label>
-              <select
-                value={form.resumeId}
-                onChange={(e) =>
-                  setForm({ ...form, resumeId: e.target.value })
-                }>
-                <option value="">Select a resume</option>
-                {resumes.map((r) => (
-                  <option key={r._id} value={r._id}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+            <div className="field-group">
+              <label className="field-label">
+                <span className="material-symbols-outlined field-label-icon">
+                  description
+                </span>
+                Resume Used
+              </label>
+              <div className="modern-select-wrap">
+                <select
+                  className="modern-select"
+                  value={form.resumeId}
+                  onChange={(e) =>
+                    setForm({ ...form, resumeId: e.target.value })
+                  }>
+                  <option value="">Select a resume…</option>
+                  {resumes.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined modern-select-arrow">
+                  expand_more
+                </span>
+              </div>
             </div>
 
             <div style={{ display: "flex", gap: "10px", marginTop: "0.5rem" }}>
