@@ -146,7 +146,15 @@ ATS-Job-Tracker
 
 ## Screenshots
 
-I'll add Screenshots soon
+Screenshots are included in the repository at: /client/src/assets/screenshots
+
+Example markdown to display one of these images:
+
+![Dashboard](/client/src/assets/screenshots/UserDashboard.png)
+![Login](/client/src/assets/screenshots/Login.png)
+![Register](/client/src/assets/screenshots/Register.png)
+![ATScheckerPublic](/client/src/assets/screenshots/ATScheckerPublic.png)
+![ATSResultPublic](/client/src/assets/screenshots/ATSResultPublic.png)
 
 ---
 
