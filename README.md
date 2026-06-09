@@ -1,3 +1,9 @@
+![React](https://img.shields.io/badge/React-19-blue)
+![Node.js](https://img.shields.io/badge/Node.js-Backend-green)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-green)
+![JWT](https://img.shields.io/badge/Auth-JWT-orange)
+![Groq](https://img.shields.io/badge/AI-Groq-purple)
+
 # ATS Job Tracker
 
 ATS Job Tracker is a full-stack AI-powered career management platform that helps job seekers optimize resumes, improve ATS compatibility, match resumes with job descriptions, track applications, prepare for interviews, and analyze job search performance.
