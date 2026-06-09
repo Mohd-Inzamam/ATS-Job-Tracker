@@ -1,131 +1,222 @@
-# ResumeTracker
+# ATS Job Tracker
 
-ResumeTracker is a full-stack AI-powered career management platform designed to help job seekers improve their resumes, analyze ATS compatibility, match resumes with job descriptions, track applications, prepare for interviews, and monitor job search performance.
+ATS Job Tracker is a full-stack AI-powered career management platform that helps job seekers optimize resumes, improve ATS compatibility, match resumes with job descriptions, track applications, prepare for interviews, and analyze job search performance.
 
-## Key Features
+## Live Demo
 
-### Resume Management
+https://ats-job-tracker.vercel.app/
 
-* Upload and store PDF/DOCX resumes
-* Resume parsing and text extraction
-* Resume organization and labeling
+## Overview
 
-### ATS Resume Analysis
+Most resumes never reach a recruiter because they are filtered out by Applicant Tracking Systems (ATS).
 
-* ATS compatibility scoring
-* Missing section detection
-* Resume quality insights and recommendations
+ATS Job Tracker helps users understand why resumes fail automated screening and provides actionable insights to improve interview opportunities.
+
+The platform combines ATS analysis, AI-powered resume coaching, job application management, interview preparation, and analytics into a single workflow.
+
+---
+
+## Core Features
+
+### Resume Intelligence
+
+- Upload and manage multiple resumes (PDF/DOCX)
+- Resume parsing and text extraction
+- ATS compatibility analysis with detailed scoring
+- Missing section detection and optimization suggestions
+- Resume quality recommendations
 
 ### Resume ↔ Job Description Matching
 
-* Match percentage calculation
-* Matched keyword identification
-* Missing keyword analysis
-* AI-generated match explanations
+- Match resumes against job descriptions
+- Match percentage calculation
+- Matched and missing keyword analysis
+- AI-generated explanations and improvement suggestions
 
-### Job Application Tracking
+### Application Tracking
 
-* Track applications across multiple companies
-* Manage application pipeline stages
-* Store job descriptions and associated resumes
-* Status-based workflow management
+- Manage applications across multiple companies
+- Visual hiring pipeline:
+  - Saved
+  - Applied
+  - Interview
+  - Offer
+  - Rejected
 
-### AI Interview Preparation
+- Associate resumes with specific applications
+- Track progress throughout the hiring journey
 
-* Automatically generate interview preparation material
-* Personalized interview questions
-* Resume-based preparation guidance
+### AI-Powered Assistance
+
+- AI Match Explanations
+- Personalized Interview Preparation
+- Resume Improvement Guidance
+- Weekly Career Insights
 
 ### Analytics Dashboard
 
-* Application performance tracking
-* Resume effectiveness metrics
-* Job search trends and insights
+- Application performance metrics
+- Resume effectiveness tracking
+- Interview and offer rate analysis
+- Job search trend visualization
 
 ### Authentication & Security
 
-* JWT Authentication
-* Refresh Token Management
-* Email Verification
-* Password Reset Workflow
-* Protected Routes
+- JWT Authentication
+- Refresh Token Management
+- Email Verification
+- Password Reset Workflow
+- Protected Routes
 
+---
 
-Tech Stack
-----------
-- Server: Node.js, Express, MongoDB / Mongoose
-- Auth: JSON Web Tokens (access + refresh)
-- Email: SMTP (nodemailer)
-- Client: React + Vite
-- File uploads: multer
-- Dev tools: nodemon / Vite dev server
+## Tech Stack
 
-Architecture
-------------
-- client/ — React app (Vite). Handles UI, auth flows, file uploads, and calls server APIs.
-- server/ — Express API. Routes grouped by function (auth, resumes, ats, match, applications, analytics).
-  - controller/ — request handlers (authController, atsController, matchController, etc.)
-  - models/ — Mongoose schemas (User, Resume, JobApplication, ...)
-  - routes/ — Express routes wired in server.js
-  - utils/ — helpers (ATS scoring, match scoring, email helpers)
-  - middleware/ — auth, file upload, error handling
-- Authentication:
-  - Access token: short-lived JWT returned to client
-  - Refresh token: longer-lived JWT sent to client and hashed in DB for rotation
-- CORS:
-  - Server includes middleware for CORS; ensure x-refresh-token is allowed/exposed for token refresh flows
+### Frontend
 
-Screenshots
------------
-I'll soon add Screenshots.
+- React.js
+- Vite
+- React Router
+- Context API
+- Axios
+- Recharts
 
-Installation
-------------
-(Windows — PowerShell / CMD / Git Bash)
+### Backend
 
-1. Clone repo (if needed)
-   - git clone <repo-url>
-   - cd d:\React\Projects\RESUMETRACKER
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
 
-2. Server
-   - cd server
-   - npm install
-   - copy .env.example .env        (CMD)  
-     OR cp .env.example .env      (Git Bash / PowerShell)
-   - Fill .env with required values (see below)
-   - npm run dev                  (or npm start depending on package.json)
+### Authentication & Security
 
-3. Client
-   - cd ..\client
-   - npm install
-   - npm run dev
+- JWT Authentication
+- Refresh Tokens
+- Bcrypt
 
-4. Open the client dev URL (Vite will show it, usually http://localhost:5173) and the API server (default PORT in .env or 5000).
+### AI & Integrations
 
-Environment Variables
----------------------
-Create server/.env with at least:
+- Groq API
+- Resume Parsing Engine
+- Nodemailer
 
-- PORT=5000
-- MONGO_URI=your_mongodb_connection_string
-- JWT_SECRET=your_jwt_secret
-- JWT_REFRESH_SECRET=your_jwt_refresh_secret
-- FRONTEND_URL=http://localhost:5173
-- SMTP_HOST=smtp.example.com
-- SMTP_PORT=587
-- SMTP_USER=your_smtp_user
-- SMTP_PASS=your_smtp_password
-- EMAIL_FROM="ResumeTracker <no-reply@example.com>"
+### File Handling
 
-Optional:
-- CLOUDINARY_URL or other storage keys if used
-- NODE_ENV=development
+- Multer
+- PDF / DOCX Processing
 
-Future Enhancements
--------------------
-- Stronger refresh-token rotation (httpOnly cookie + rotated refresh tokens)
-- Improve parsing accuracy (NLP / resume parsing library)
-- Add role-based access control (admin / user)
-- Job import (from LinkedIn / CSV) and bulk resume parsing
-- CI/CD pipeline and Docker Compose for easy local deployment
-- Automated tests (unit + integration) and API contract tests
+---
+
+## Architecture
+
+```text
+ATS-Job-Tracker
+│
+├── client
+│   ├── pages
+│   ├── components
+│   ├── context
+│   └── services
+│
+└── server
+    ├── controllers
+    ├── routes
+    ├── models
+    ├── middleware
+    └── utils
+```
+
+### Key Modules
+
+- Authentication System
+- Resume Management
+- ATS Scoring Engine
+- Resume Matching Engine
+- Application Tracking
+- Analytics Dashboard
+- AI Services
+
+---
+
+## Screenshots
+
+I'll add Screenshots soon
+
+---
+
+## Getting Started
+
+### Clone Repository
+
+```bash
+git clone https://github.com/Mohd-Inzamam/ATS-Job-Tracker.git
+cd ATS-Job-Tracker
+```
+
+### Server Setup
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+### Client Setup
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file inside the server directory:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_jwt_refresh_secret
+
+FRONTEND_URL=http://localhost:5173
+
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+EMAIL_FROM=
+
+GROQ_API_KEY=
+```
+
+---
+
+## Future Enhancements
+
+- Advanced NLP Resume Parsing
+- LinkedIn Job Import
+- Bulk Resume Analysis
+- Docker Deployment
+- CI/CD Pipeline
+- Automated Testing
+- Role-Based Access Control
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue first to discuss what you'd like to change.
+
+## Author
+
+Mohd Injmam
+
+Full Stack MERN Developer
+
+GitHub: https://github.com/Mohd-Inzamam
+
+LinkedIn: https://www.linkedin.com/in/inzamam-sheikh/
