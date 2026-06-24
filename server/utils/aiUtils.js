@@ -185,6 +185,88 @@ Generate exactly 6 questions: 3 Technical, 2 Behavioural, 1 Culture Fit.`
 };
 
 /**
+ * Generates a semantic quality assessment of resume content that rules
+ * structurally cannot judge — bullet impact, clarity, and specificity.
+ * This sits ALONGSIDE the rule-based score, not in place of it: rules
+ * give a deterministic floor (sections present, verbs used, length),
+ * AI adds judgment on the writing itself.
+ *
+ * @param {object} params
+ * @returns {Promise<{ qualityScore: number, strengths: string[], weakBullets: object[], overallTone: string }>}
+ */
+export const generateATSQualityInsightWithAI = async ({ resumeText, ruleScore }) => {
+    const fallback = {
+        qualityScore: Math.round(ruleScore * 0.7), // conservative fallback tied to rule score
+        strengths: [],
+        weakBullets: [],
+        overallTone: "",
+    };
+
+    try {
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+        // Cap input so we stay well inside token limits and keep latency low —
+        // the first ~3500 chars of a resume covers summary + most of experience
+        // for the vast majority of real resumes.
+        const trimmedText = resumeText.slice(0, 3500);
+
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.1-8b-instant",
+            temperature: 0.2,
+            max_tokens: 700,
+            messages: [
+                {
+                    role: "system",
+                    content:
+                        "You are an expert resume reviewer judging WRITING QUALITY only — not formatting or keywords, which are scored separately by a rules engine. Judge clarity, specificity, and impact of the actual sentences. Always respond with valid JSON only — no markdown, no code fences, no explanation."
+                },
+                {
+                    role: "user",
+                    content: `Review this resume's writing quality. Ignore formatting, fonts, and section structure — those are already scored elsewhere. Focus only on whether the bullet points and descriptions are specific, quantified, and impactful versus vague and generic.
+
+Resume text:
+${trimmedText}
+
+Return JSON with exactly these fields:
+{
+  "qualityScore": <integer 0-100, how strong the WRITING is, independent of formatting>,
+  "strengths": ["1-3 short phrases naming what's genuinely well-written, e.g. 'Strong quantified impact in the experience section'"],
+  "weakBullets": [
+    {
+      "original": "a short excerpt (under 20 words) of a vague/weak bullet found in the text, or empty string if none found",
+      "issue": "one short phrase naming the problem, e.g. 'No measurable outcome'",
+      "rewriteSuggestion": "a concise rewritten version of that same bullet that is more specific and impactful, under 20 words"
+    }
+  ],
+  "overallTone": "one sentence describing the overall writing quality in plain language"
+}
+
+Identify at most 3 weak bullets. If the resume text is too short or unclear to assess meaningfully, return qualityScore based on what's visible and an empty weakBullets array.`
+                }
+            ]
+        });
+
+        const rawText = completion.choices[0]?.message?.content ?? "";
+        const cleaned = rawText.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+
+        // Defensive shape-check — never let a malformed AI response leak
+        // into the response contract the frontend depends on.
+        return {
+            qualityScore: Number.isFinite(parsed.qualityScore)
+                ? Math.max(0, Math.min(100, Math.round(parsed.qualityScore)))
+                : fallback.qualityScore,
+            strengths: Array.isArray(parsed.strengths) ? parsed.strengths.slice(0, 3) : [],
+            weakBullets: Array.isArray(parsed.weakBullets) ? parsed.weakBullets.slice(0, 3) : [],
+            overallTone: typeof parsed.overallTone === "string" ? parsed.overallTone : "",
+        };
+    } catch (error) {
+        console.error("AI ATS quality insight error (soft-fail):", error.message ?? error);
+        return fallback;
+    }
+};
+
+/**
  * Generates a brief dashboard insight for the job seeker
  * @param {object} params
  * @returns {Promise<string>}
@@ -230,4 +312,3 @@ Give them one specific, encouraging insight about their job search progress and 
         return fallback;
     }
 };
-
