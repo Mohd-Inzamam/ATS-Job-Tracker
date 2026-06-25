@@ -108,4 +108,4 @@ async function parsePdfWithStructure(filePath) {
     };
 
     return { text, structure };
-}
+} 
