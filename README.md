@@ -227,7 +227,6 @@ GROQ_API_KEY=
 - CI/CD Pipeline
 - Automated Testing
 - Role-Based Access Control
-- Proper Footer, About section and other pages comming soon
 
 ---
 
