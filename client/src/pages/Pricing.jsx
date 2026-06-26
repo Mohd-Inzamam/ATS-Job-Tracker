@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicNavbar from "../components/PublicNavbar";
+import Footer from "../components/Footer";
 
 const PLANS = [
   {
@@ -253,14 +254,7 @@ export default function Pricing() {
           </button>
         </div>
 
-        <footer className="landing-footer">
-          <span>© 2025 ATS Tracker. Built for job seekers.</span>
-          <div className="landing-footer-links">
-            <a href="#">Privacy</a>
-            <span>·</span>
-            <a href="#">Terms</a>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );
