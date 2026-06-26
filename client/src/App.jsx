@@ -18,6 +18,10 @@ import Pricing from "./pages/Pricing";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import DemoCheckout from "./pages/DemoCheckout";
+import About from "./pages/About";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
 
 export default function App() {
   return (
@@ -30,6 +34,10 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />{" "}
       <Route path="/reset-password/:token" element={<ResetPassword />} />{" "}
+      <Route path="/about" element={<About />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/contact" element={<Contact />} />
       {/* Protected Routes */}
       <Route
         path="/dashboard"
