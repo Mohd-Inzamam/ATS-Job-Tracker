@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PublicNavbar from "../components/PublicNavbar";
-import Footer from "../components/Footer";
+import Footer from "../pages/Footer";
 import { useToast } from "../context/ToastContext";
 
 const CONTACT_REASONS = [

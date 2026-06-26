@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicNavbar from "../components/PublicNavbar";
-import Footer from "../components/Footer";
+import Footer from "../pages/Footer";
 
 const PLANS = [
   {

@@ -1,5 +1,5 @@
 import PublicNavbar from "../components/PublicNavbar";
-import Footer from "../components/Footer";
+import Footer from "../pages/Footer";
 import { useNavigate } from "react-router-dom";
 
 const VALUES = [

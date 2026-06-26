@@ -1,5 +1,5 @@
 import PublicNavbar from "../components/PublicNavbar";
-import Footer from "../components/Footer";
+import Footer from "../pages/Footer";
 
 const SECTIONS = [
   {
