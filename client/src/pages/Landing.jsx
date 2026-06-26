@@ -1,4 +1,5 @@
 import PublicNavbar from "../components/PublicNavbar";
+import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import PrimaryButton from "../components/PrimaryButton";
 
@@ -343,16 +344,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="landing-footer">
-        <span>© 2025 ATS Tracker. Built for job seekers.</span>
-        <div className="landing-footer-links">
-          <a href="/pricing">Pricing</a>
-          <span>·</span>
-          <a href="#">Privacy</a>
-          <span>·</span>
-          <a href="#">Terms</a>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
