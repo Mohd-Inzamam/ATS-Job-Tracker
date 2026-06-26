@@ -30,6 +30,13 @@ export default function PublicNavbar() {
           </NavLink>
 
           <NavLink
+            to="/about"
+            className="nav-item"
+            onClick={() => setOpen(false)}>
+            About
+          </NavLink>
+
+          <NavLink
             to="/pricing"
             className="nav-item"
             onClick={() => setOpen(false)}>
